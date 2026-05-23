@@ -12,7 +12,7 @@ include_once './includes/navbar.php';
 
 <div class="container-fluid">
     <div class="row gap-lg-0 gap-3">
-        <div class="col-lg-4 col-12 order-lg-1 order-2">
+        <div class="col-lg-7 col-12 order-lg-1 order-2">
             <div class="card">
                 <h5 class="card-header">Household & Household Members</h5>
                 <div class="card-body">
@@ -23,7 +23,7 @@ include_once './includes/navbar.php';
                                 <option disabled selected>Select Family Name</option>
                                 <option value="1">Dela Cruz</option>
                                 <option value="2">Smith</option>
-                                <option value="3">Johnson</option> 
+                                <option value="3">Johnson</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -31,7 +31,7 @@ include_once './includes/navbar.php';
                             <input type="text" class="form-control" id="FatherName" placeholder="Please enter N/A if not applicable">
                         </div>
                         <div class="mb-3">
-                           <label for="MotherName" class="form-label">Mother Name <span class="text-danger">*</span></label>
+                            <label for="MotherName" class="form-label">Mother Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="MotherName" placeholder="Please enter N/A if not applicable">
                         </div>
                         <div class="mb-3 form-check">
@@ -48,7 +48,7 @@ include_once './includes/navbar.php';
                                         <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody >
+                                <tbody>
                                     <tr>
                                         <td><input type="text" class="form-control" placeholder="Enter Sibling Name"></td>
                                         <td width="150"><input type="number" class="form-control" placeholder="Enter Age"></td>
@@ -64,13 +64,13 @@ include_once './includes/navbar.php';
                         </div>
                         <div class="d-flex justify-content-end gap-2 pt-3">
                             <button type="reset" class="btn btn-danger  btn-rounded"><i class="fas fa-redo"></i> Reset</button>
-                            <button type="submit" class="btn btn-success btn-rounded"><i class="fas fa-plus"></i> Add Household</button> 
+                            <button type="submit" class="btn btn-success btn-rounded"><i class="fas fa-plus"></i> Add Household</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-        <div class="col-lg-8 col-12 order-lg-2 order-1">
+        <div class="col-lg-5 col-12 order-lg-2 order-1">
             <div class="card" style="height: 500px;">
                 <h5 class="card-header">Household & Household Members List</h5>
                 <div class="card-body">
@@ -98,7 +98,7 @@ include_once './includes/navbar.php';
                     </table>
                 </div>
             </div>
+        </div>
     </div>
-</div>
-<script src="./js/household-member.js"></script>
-<?php include_once './includes/footer.php'; ?>
+    <script src="./js/household-member.js"></script>
+    <?php include_once './includes/footer.php'; ?>

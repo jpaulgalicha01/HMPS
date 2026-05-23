@@ -13,9 +13,9 @@ include_once './includes/navbar.php';
 <div class="container-fluid pt-2">
     <div class="row gap-lg-0 gap-3">
         <div class="col-12">
-            <div id="map" style="height: 90vh;"></div>
+            <div id="map" style="height: 70vh;"></div>
         </div>
     </div>
 </div>
-<script src="./js/barangay-setup.js"></script>
+<script src="./js/barangay-setup.js" defer></script>
 <?php include_once './includes/footer.php'; ?>
