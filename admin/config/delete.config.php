@@ -41,4 +41,24 @@ class delete extends controller
             return false;
         }
     }
+
+    public function deleteCategory($CategoryID)
+    {
+        $stmt = $this->delete_category($CategoryID);
+        if ($stmt) {
+            if ($stmt == 1) {
+                $response = [
+                    'status' => 200,
+                    'message' => 'Category Deleted Successfully.',
+                ];
+            } else {
+                $response = [
+                    'status' => 409,
+                    'message' => $stmt,
+                ];
+            }
+            echo json_encode($response);
+            return false;
+        }
+    }
 }

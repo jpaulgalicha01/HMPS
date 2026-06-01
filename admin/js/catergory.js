@@ -8,7 +8,8 @@ $(document).ready(function() {
 function fncAddLevelBtn() {
     const tr = document.createElement('tr');
     tr.classList.add('text-center');
-    // Year column
+    tr.dataset.categoryLevelId = ""; // Empty ID for new levels
+    // Level Name column
     const tdYear = document.createElement('td');
     const inputLevelName = document.createElement('input');
     inputLevelName.type = "text";
@@ -18,7 +19,7 @@ function fncAddLevelBtn() {
     inputLevelName.placeholder = "Enter Level Name";
 
     tdYear.appendChild(inputLevelName);
-    // QTR column
+    // Color column
     const tdQtr = document.createElement('td');
     const inputColor = document.createElement('input');
     inputColor.type = "color";
@@ -46,6 +47,9 @@ function fncAddLevelBtn() {
 }
 $(document).on(`reset`, `#frmSubmitCatergoryList`, function() {
     document.getElementById('catergoryLevelList').innerHTML = '';
+    $("#frmSubmitCatergoryList #btnReset").html(`<i class="fas fa-redo"></i> Reset`);
+    $("#frmSubmitCatergoryList #btnSubmit").html(`<i class="fas fa-plus"></i> Add Category`);
+    $("#CategoryID").val('');
 });
 
 
@@ -54,10 +58,12 @@ $(document).on(`submit`, `#frmSubmitCatergoryList`, function(e) {
     const formData = new FormData();
     const levels = [];
     document.querySelectorAll('#catergoryLevelList tr').forEach(tr => {
+        const categoryLevelId = tr.dataset.categoryLevelId;
         const LevelName = tr.querySelector('td:nth-child(1) input').value;
         const Color = tr.querySelector('td:nth-child(2) input').value;
-        levels.push({ LevelName, Color });
+        levels.push({ categoryLevelId, LevelName, Color });
     });
+    formData.append('CategoryID', document.getElementById('CategoryID').value);
     formData.append('CategoryName', document.getElementById('CategoryName').value);
     formData.append('CategoryLevelList', JSON.stringify(levels));
     formData.append('add_category', true);
@@ -72,7 +78,6 @@ $(document).on(`submit`, `#frmSubmitCatergoryList`, function(e) {
         }
     }, 'POST');
 })
-
 
 const initializePropertyTable = () => {
     propertyTable = $("#categoryTable").DataTable({
@@ -113,7 +118,7 @@ const initializePropertyTable = () => {
                           <button class="form-control btn btn-success btn-sm" onclick="updateCategory('${data}')"><i class="fas fa-edit"></i> Edit</button>
                         </li>
                         <li class="dropdown-item">
-                          <button class="form-control btn btn-danger btn-sm" onclick="deleteCategory('${data}')"><i class="fas fa-trash"></i> Delete</button>
+                          <button class="form-control btn btn-danger btn-sm" onclick="deleteCategory('${data}', '${row.CategoryName}')"><i class="fas fa-trash"></i> Delete</button>
                         </li>
                       </ul>
                     </div>
@@ -123,3 +128,90 @@ const initializePropertyTable = () => {
         ]
     });
 };
+
+function updateCategory(id) {
+    $("#frmSubmitCatergoryList #btnReset").html(`<i class="fas fa-times"></i> Cancel`);
+    $("#frmSubmitCatergoryList #btnSubmit").html(`<i class="fas fa-edit"></i> Update Category`);
+
+    const formData = new FormData();  
+    formData.append("getCategoryDetailsWithID", true);
+    formData.append("CategoryID", id);
+
+    fncExecute('inputConfig.php', formData, function (response, textStatus, jqXHR) {
+        const res = JSON.parse(response);  
+        if(res.status === 200) {
+            const data = res.data;
+            $("#frmSubmitCatergoryList #CategoryName").val(data.CategoryName);
+            $("#frmSubmitCatergoryList #CategoryID").val(data.CategoryID);
+            document.getElementById('catergoryLevelList').innerHTML = '';
+            data.CategoryListLevel.forEach(level => {
+                const tr = document.createElement('tr');
+                tr.classList.add('text-center');
+                // Store CategoryLevelID in row dataset for later use (e.g., update/delete)
+                tr.dataset.categoryLevelId = level.CategoryLevelID;
+
+                // Level Name column
+                const tdYear = document.createElement('td');
+                const inputLevelName = document.createElement('input');
+                inputLevelName.type = "text";
+                inputLevelName.className = "form-control";
+                inputLevelName.required = true;
+                inputLevelName.name = "LevelName";
+                inputLevelName.placeholder = "Enter Level Name";
+                inputLevelName.value = level.CatLevelName;
+                tdYear.appendChild(inputLevelName);
+                // Color column
+                const tdQtr = document.createElement('td');
+                const inputColor = document.createElement('input');
+                inputColor.type = "color";
+                inputColor.className = "form-control form-control-color";
+                inputColor.value = level.Color;
+                inputColor.title = "Choose your color";
+                inputColor.name = "Color";
+                tdQtr.appendChild(inputColor);
+                // Action column
+                const tdAction = document.createElement('td');
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-danger btn-sm';
+                btn.style.borderRadius = "100%";
+                btn.innerHTML = '<i class="fa fa-trash"></i>';
+                btn.onclick = () => tr.remove();
+                tdAction.appendChild(btn);
+                // Append all columns to row
+                tr.appendChild(tdYear);
+                tr.appendChild(tdQtr);
+                tr.appendChild(tdAction);
+                // Append row to table body
+                document.getElementById('catergoryLevelList').appendChild(tr);
+            })
+        }
+            else {
+                ClsAlert({ icon: "error", title: res.message });
+            }
+    }, 'POST');
+}
+
+function deleteCategory(id, name) {
+    const formData = new FormData();
+    formData.append("deleteCategory", true);
+    formData.append("CategoryID", id); 
+    ClsConfirmAlert({
+        icon: "error",
+        title: `Are you sure you want to delete the category "${name}"?`,
+        confirmText: "Delete",
+        cancelText: "Cancel",
+        onConfirm: function() {
+            fncExecute('inputConfig.php', formData, function (response, textStatus, jqXHR) {
+                const res = JSON.parse(response);
+                if(res.status === 200) {
+                    ClsAlert({ icon: "success", title: res.message });
+                    // ✅ safer: reload instead of reinit
+                    $("#categoryTable").DataTable().ajax.reload();
+                } else {
+                    ClsAlert({ icon: "error", title: res.message });
+                }
+            }, 'POST');
+        }
+    });
+
+}

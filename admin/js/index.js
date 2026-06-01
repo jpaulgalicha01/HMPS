@@ -1,26 +1,26 @@
-var map = '';
+import { LeafLets, LeafLetDrawnItems, LeafLetRemoveBackGround } from "../../assets/leaflet/LeafLetSetup.js";
+var map = LeafLets();
+var drawnItems = LeafLetDrawnItems();
+var removeBackGround = LeafLetRemoveBackGround();
+  
+$(document).ready(function(){
+loadPolygons();
 
-(function () {
-  // Kabankalan City center
-  map = L.map('map').setView([9.9833, 122.8167], 13);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors',
-  }).addTo(map);
+})
 
-  var kabankalanBounds = L.latLngBounds(
-    [9.95, 122.78], // Southwest corner
-    [10.02, 122.85], // Northeast corner
-  );
 
-  // Restrict the map to these bounds
-  map.setMaxBounds(kabankalanBounds);
-
-  // Optional: prevent zooming out too far
-  map.setMinZoom(12);
-
-  // Optional: bounce back if user tries to drag outside
-  map.on('drag', function () {
-    map.panInsideBounds(kabankalanBounds, { animate: true });
-  });
-})();
+function loadPolygons() {
+    fncExecute("inputConfig.php?fetch_polygons=true", null, function (response) {
+        var data = JSON.parse(response);
+        data.forEach(function (poly) {
+            var mainLayer = L.polygon(poly.coordinates).addTo(map);
+            mainLayer.options.dbId = poly.id; // Store the DB ID
+            var mask = L.polygon([removeBackGround].concat([poly.coordinates]), {
+                stroke: false,
+                fillColor: "#000000",
+                fillOpacity: .9
+            }).addTo(map);
+            map.fitBounds(mainLayer.getBounds());
+        });
+    }, "GET");
+}

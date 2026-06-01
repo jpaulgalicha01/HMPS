@@ -1,26 +1,12 @@
-var map = L.map('map',{}).setView([9.9833, 122.8167], 14);
-var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors',
-  }).addTo(map);
-  var drawnItems = new L.FeatureGroup();
+import {LeafLets,LeafLetDrawnItems,LeafLetDrawControl} from "../../assets/leaflet/LeafLetSetup.js";
+var map = LeafLets();
+var drawnItems = LeafLetDrawnItems();
+var drawControl = LeafLetDrawControl(map,drawnItems);
 
 $(document).ready(function () {
   loadPolygons();
 }); 
 function loadPolygons() {
-
-  // fetch("inputConfig.php?fetch_polygons=true")
-  //   .then(res => res.json())
-  //   .then(data => {
-  //     data.forEach(function (poly) {
-  //       var layer = L.polygon(poly.coordinates).addTo(map);
-  //       drawnItems.clearLayers();
-  //       drawnItems.addLayer(layer);
-  //       layer.options.dbId = poly.id; // Store the DB ID
-  //       layer.bindPopup("Loaded polygon ID: " + poly.id);
-  //     });
-  //   });
     fncExecute("inputConfig.php?fetch_polygons=true", null, function (response) {
       var data = JSON.parse(response);
       data.forEach(function (poly) {
@@ -29,47 +15,25 @@ function loadPolygons() {
         drawnItems.addLayer(layer);
         layer.options.dbId = poly.id; // Store the DB ID
         layer.bindPopup("Loaded polygon ID: " + poly.id);
+         map.fitBounds(layer.getBounds())
       });
     },"GET");
     
   }
-  var kabankalanBounds = L.latLngBounds([9.95, 122.78], [10.02, 122.85]);
-  map.setMaxBounds(kabankalanBounds);
-  map.setMinZoom(12);
-  map.on('drag', function () {
-    map.panInsideBounds(kabankalanBounds, { animate: true });
-  });
-var drawControl = new L.Control.Draw({
-  position: 'topleft',
-  draw: {
-    polygon: true,
-    polyline: false,
-    rectangle: false,
-    circle: false,
-    marker: false,
-  },
-  edit: {
-    featureGroup: drawnItems, // ✅ required for edit/delete
-    remove: true
-  }
-});
-  map.addControl(drawControl);
-  map.addLayer(drawnItems);
-
   // When a polygon is created
   map.on('draw:created', function (e) {
     var formdata = new FormData();
     var layer = e.layer;
 
       // ✅ Check if a polygon already exists
-  var existingPolygons = drawnItems.getLayers().filter(l => l instanceof L.Polygon);
-  if (existingPolygons.length > 0) {
-    Swal.fire({
-      icon: "warning",
-      text: "A polygon already exists. You can only save one."
-    });
-    return; // stop here
-  }
+    var existingPolygons = drawnItems.getLayers().filter(l => l instanceof L.Polygon);
+    if (existingPolygons.length > 0) {
+      Swal.fire({
+        icon: "warning",
+        text: "A polygon already exists. You can only save one."
+      });
+      return; // stop here
+    }
      // Clear existing polygons
     if (e.layerType === 'polygon') {
       var coords = layer.getLatLngs()[0];
@@ -91,6 +55,7 @@ var drawControl = new L.Control.Draw({
     }
   });
 
+  // When a polygon is edited
   map.on("draw:edited", function (evt) {
   evt.layers.eachLayer(function (editedLayer) {
     var newCoords = editedLayer.getLatLngs()[0];
