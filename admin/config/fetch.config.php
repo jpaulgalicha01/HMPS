@@ -39,4 +39,42 @@ class fetch extends controller
         echo json_encode($response);
         return false;
     }
+
+
+    public function getCategoryDetailsWithID($CategoryID)
+    {
+        $stmt = $this->get_category_details_with_id($CategoryID);
+        $response = [
+            'status' => 200,
+            'data' => $stmt,
+        ];
+        echo json_encode($response);
+        return false;
+    }
+
+    public function getCategoryAll()
+    {
+        $stmt  = $this->get_category_all();
+        return $stmt;
+    }
+
+    public function getCategoryLevelId($categoryID)
+    {
+        $stmt = $this->get_category_level_id($categoryID);
+
+        if (!$stmt) {
+            $response = [
+                'status' => 500,
+                'message' => "There's something Error"
+
+            ];
+        } else {
+            $response = [
+                'status' => 200,
+                'data' => $stmt
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
 }

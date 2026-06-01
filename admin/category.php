@@ -17,6 +17,7 @@ include_once './includes/navbar.php';
                 <div class="card-body">
                     <form id="frmSubmitCatergoryList">
                         <div class="mb-3">
+                            <input type="hidden" id="CategoryID" name="CategoryID">
                             <label for="CategoryName" class="form-label">Category Name</label>
                             <input type="text" class="form-control" id="CategoryName" name="CategoryName" placeholder="ex. Poverty Incidence" required>
                         </div>
@@ -41,8 +42,8 @@ include_once './includes/navbar.php';
                             <button type="button" class="btn btn-primary btn-sm  btn-rounded form-control" onclick="fncAddLevelBtn()"><i class="fas fa-plus"></i> Add Level</button>
                         </div>
                         <div class="d-flex justify-content-end gap-2">
-                            <button type="reset" class="btn btn-danger  btn-rounded"><i class="fas fa-redo"></i> Reset</button>
-                            <button type="submit" class="btn btn-success btn-rounded"><i class="fas fa-plus"></i> Add Category</button>
+                            <button type="reset" class="btn btn-danger  btn-rounded" id="btnReset"><i class="fas fa-redo"></i> Reset</button>
+                            <button type="submit" class="btn btn-success btn-rounded" id="btnSubmit"><i class="fas fa-plus"></i> Add Category</button>
                         </div>
                     </form>
                 </div>

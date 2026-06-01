@@ -1,7 +1,6 @@
 <?php
 include 'includes/autoload.inc.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
     if (isset($_POST["addFamilyList"])) {
         $FamilyName = secured($_POST["FamilyName"]);
         $FamilyUniqueID = secured($_POST["FamilyUniqueId"]);
@@ -26,15 +25,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $deletePolygon = new delete();
         $deletePolygon->deletePolygon($polygonId);
     } else if (isset($_POST["add_category"])) {
+        $CategoryID = secured($_POST["CategoryID"]);
         $CategoryName = secured($_POST["CategoryName"]);
         $CategoryLevelList = $_POST["CategoryLevelList"];
-        $insertCategorylist = new insert();
-        $insertCategorylist->InsertCategory($CategoryName, $CategoryLevelList);
+        if (empty($CategoryID)) {
+            $insertCategorylist = new insert();
+            $insertCategorylist->InsertCategory($CategoryName, $CategoryLevelList);
+        } else {
+            $updateCategorylist = new update();
+            $updateCategorylist->UpdateCategory($CategoryID, $CategoryName, $CategoryLevelList);
+        }
+    } else if (isset($_POST["getCategoryDetailsWithID"])) {
+        $CategoryID = secured($_POST["CategoryID"]);
+        $fetch = new fetch();
+        $fetch->getCategoryDetailsWithID($CategoryID);
+    } else if (isset($_POST["deleteCategory"])) {
+        $CategoryID = secured($_POST["CategoryID"]);
+        $delete = new delete();
+        $delete->deleteCategory($CategoryID);
     } else {
-        echo json_encode([
-            'status' => 400,
-            'message' => 'Bad Request.',
-        ]);
+        return http_response_code(404);
     }
 } else if ($_SERVER["REQUEST_METHOD"] == "GET") {
     if (isset($_GET["getFamilyList"])) {
@@ -43,14 +53,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else if (isset($_GET["fetch_polygons"])) {
         $fetch = new fetch();
         $fetch->getPolygon();
-    } 
-    
-    else if (isset($_GET["getCategoryList"])) {
+    } else if (isset($_GET["getCategoryList"])) {
         $fetch = new fetch();
         $fetch->getCategoryList();
-    }
-    else {
-        ob_end_flush(header("Location: index.php"));
+        // } else if(){
+    } else {
+        return http_response_code(404);
     }
 } else {
     ob_end_flush(header("Location: index.php"));

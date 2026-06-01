@@ -152,10 +152,6 @@ class controller extends db
             return ['status' => 500, 'message' => $error->getMessage()];
         }
     }
-
-
-
-
     /// Inserting Process
 
     /// Fetching Process
@@ -204,7 +200,7 @@ class controller extends db
             FROM category_name cat_name
             LEFT JOIN category_list_level cat_list_level 
                 ON cat_name.category_id = cat_list_level.category_id
-            ORDER BY cat_name.category_id
+            ORDER BY cat_name.category_id, cat_list_level.category_level_id asc
         ");
             $stmt->execute();
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -239,6 +235,71 @@ class controller extends db
     }
 
 
+    protected function get_category_details_with_id($CategoryID)
+    {
+        try {
+            $stmt = $this->PlsConnect()->prepare("
+            SELECT 
+                cat_name.category_id,
+                cat_name.category_name,
+                cat_list_level.category_level_name,
+                cat_list_level.category_level_color,
+                cat_list_level.category_level_id
+            FROM category_name cat_name
+            LEFT JOIN category_list_level cat_list_level 
+                ON cat_name.category_id = cat_list_level.category_id
+            WHERE cat_name.category_id = :category_id
+            order by cat_list_level.category_level_id asc
+        ");
+            $stmt->bindParam(":category_id", $CategoryID);
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (empty($rows)) {
+                return ['status' => 404, 'message' => 'Category not found.'];
+            }
+
+            $categoryDetails = [
+                "CategoryID" => $rows[0]['category_id'],
+                "CategoryName" => $rows[0]['category_name'],
+                "CategoryListLevel" => []
+            ];
+
+            foreach ($rows as $row) {
+                if (!empty($row['category_level_name'])) {
+                    $categoryDetails["CategoryListLevel"][] = [
+                        "CategoryLevelID" => $row['category_level_id'],
+                        "CatLevelName" => $row['category_level_name'],
+                        "Color" => $row['category_level_color']
+                    ];
+                }
+            }
+
+            return $categoryDetails;
+        } catch (PDOException $error) {
+            return ['status' => 500, 'message' => $error->getMessage()];
+        }
+    }
+
+    protected function get_category_all()
+    {
+        $stmt = $this->PlsConnect()->prepare("
+            SELECT * FROM category_name
+        ");
+        $stmt->execute();
+        return $stmt;
+    }
+    protected function get_category_level_id($categoryID)
+    {
+        $stmt = $this->PlsConnect()->prepare("
+            SELECT category_level_id,category_level_name,category_level_color FROM category_list_level WHERE category_level_id = :category_level_id
+        ");
+        $stmt->bindParam(":category_level_id", $categoryID);
+        $stmt->execute();
+        return $stmt;
+    }
+
+
     /// Fetching Process
 
     /// Deleting Process
@@ -266,6 +327,26 @@ class controller extends db
                 return 1;
             } else {
                 return "Failed to delete polygon.";
+            }
+        } catch (PDOException $error) {
+            return $error->getMessage();
+        }
+    }
+
+    protected function delete_category($CategoryID)
+    {
+        try {
+            $query = $this->PlsConnect()->prepare("DELETE FROM category_name WHERE category_id = :category_id");
+            $query->bindParam(":category_id", $CategoryID);
+            if ($query->execute()) {
+                $deleteLevelsQuery = $this->PlsConnect()->prepare(
+                    "DELETE FROM category_list_level WHERE category_id = :category_id"
+                );
+                $deleteLevelsQuery->bindParam(":category_id", $CategoryID);
+                $deleteLevelsQuery->execute();
+                return 1;
+            } else {
+                return "Failed to delete category.";
             }
         } catch (PDOException $error) {
             return $error->getMessage();
@@ -307,5 +388,80 @@ class controller extends db
             return $error->getMessage();
         }
     }
-    //// Updating Process
+
+
+
+    protected function update_category($CategoryID, $CategoryName, $CategoryLevelList)
+    {
+        $pdo = $this->PlsConnect();
+        try {
+            // Decode once here
+            $CategoryLevelList = json_decode($CategoryLevelList, true);
+            if (!is_array($CategoryLevelList)) {
+                return ['message' => 'Invalid CategoryLevelList JSON'];
+            }
+            // Check if category exists
+            $checking_query = $pdo->prepare(
+                "SELECT 1 FROM category_name WHERE category_id = :category_id LIMIT 1"
+            );
+            $checking_query->bindParam(":category_id", $CategoryID);
+            $checking_query->execute();
+            if (!$checking_query->fetch()) {
+                return ['message' => 'Category not found.'];
+            }
+
+            // Check for duplicate category name
+            $duplicate_check_query = $pdo->prepare(
+                "SELECT 1 FROM category_name WHERE category_name = :category_name AND category_id != :category_id LIMIT 1"
+            );
+            $duplicate_check_query->bindParam(":category_name", $CategoryName);
+            $duplicate_check_query->bindParam(":category_id", $CategoryID);
+            $duplicate_check_query->execute();
+            if ($duplicate_check_query->fetch()) {
+                return ['message' => 'Category Name is already used.'];
+            }
+
+            // Start transaction
+            $pdo->beginTransaction();
+
+            // Update category name
+            $updateQuery = $pdo->prepare(
+                "UPDATE category_name SET category_name = :category_name WHERE category_id = :category_id"
+            );
+            $updateQuery->bindParam(":category_name", $CategoryName);
+            $updateQuery->bindParam(":category_id", $CategoryID);
+            $updateQuery->execute();
+
+            // Delete existing levels
+            $deleteLevelsQuery = $pdo->prepare(
+                "DELETE FROM category_list_level WHERE category_id = :category_id"
+            );
+            $deleteLevelsQuery->bindParam(":category_id", $CategoryID);
+            $deleteLevelsQuery->execute();
+
+            // // Insert new levels
+            $insertLevelQuery = $pdo->prepare(
+                "INSERT INTO category_list_level (category_id, category_level_name, category_level_color) 
+             VALUES (:category_id, :level_name, :level_color)"
+            );
+
+            foreach ($CategoryLevelList as $level) {
+                $insertLevelQuery->bindParam(":category_id", $CategoryID);
+                $insertLevelQuery->bindParam(":level_name", $level['LevelName']);
+                $insertLevelQuery->bindParam(":level_color", $level['Color']);
+                $insertLevelQuery->execute();
+            }
+            // Commit transaction
+            $pdo->commit();
+
+            return ['status' => 200, 'message' => 'Category updated successfully.'];
+        } catch (PDOException $error) {
+            // Rollback transaction on error
+            $pdo->rollback();
+            return ['message' => 'Error updating category: ' . $error->getMessage()];
+        }
+    }
+
+
+    /// Updating Process
 }

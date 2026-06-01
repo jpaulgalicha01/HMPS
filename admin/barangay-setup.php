@@ -17,5 +17,5 @@ include_once './includes/navbar.php';
         </div>
     </div>
 </div>
-<script src="./js/barangay-setup.js" defer></script>
+<script type="module" src="./js/barangay-setup.js" defer></script>
 <?php include_once './includes/footer.php'; ?>
