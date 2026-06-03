@@ -152,6 +152,30 @@ class controller extends db
             return ['status' => 500, 'message' => $error->getMessage()];
         }
     }
+
+    protected function insert_area_setup($polygon_id, $category_coords, $CategoryID, $CategoryLevel)
+    {
+        try {
+            $query = $this->PlsConnect()->prepare("INSERT INTO category_area (polygon_id, category_coordinates, category_id, category_level_id) VALUES (:polygon_id, :category_coords, :category_name, :category_level)");
+            $query->bindParam(":polygon_id", $polygon_id);
+            $query->bindParam(":category_coords", $category_coords);
+            $query->bindParam(":category_name", $CategoryID);
+            $query->bindParam(":category_level", $CategoryLevel);
+            if ($query->execute()) {
+                return [
+                    'status' => 200,
+                    'message' => 'Area setup saved successfully.',
+                ];
+            } else {
+                return [
+                    'message' => 'Failed to save area setup.',
+                ];
+            }
+        } catch (PDOException $error) {
+            return $error->getMessage();
+        }
+    }
+
     /// Inserting Process
 
     /// Fetching Process
@@ -292,13 +316,41 @@ class controller extends db
     protected function get_category_level_id($categoryID)
     {
         $stmt = $this->PlsConnect()->prepare("
-            SELECT category_level_id,category_level_name,category_level_color FROM category_list_level WHERE category_level_id = :category_level_id
+            SELECT category_level_id,category_level_name,category_level_color FROM category_list_level WHERE category_id = :category_id
         ");
-        $stmt->bindParam(":category_level_id", $categoryID);
+        $stmt->bindParam(":category_id", $categoryID);
         $stmt->execute();
-        return $stmt;
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $rows;
     }
 
+
+    protected function get_area_setup_list($mainLayerId)
+    {
+        $stmt = $this->PlsConnect()->prepare("
+            SELECT 
+            category_area.category_area_id, category_area.category_id,category_name.category_name, category_list_level.category_level_id,category_list_level.category_level_name,category_list_level.category_level_color,category_area.category_coordinates
+            FROM area_polygon
+            inner JOIN category_area on area_polygon.polygon_id = category_area.polygon_id
+            INNER JOIN category_name on category_area.category_id = category_name.category_id
+            INNER JOIN category_list_level on category_area.category_level_id = category_list_level.category_level_id
+            WHERE area_polygon.polygon_id = :main_layer_id
+            GROUP BY
+            category_area.category_area_id, category_area.category_id,category_name.category_name, category_list_level.category_level_id,category_list_level.category_level_name,category_list_level.category_level_color,category_area.category_coordinates    
+        ");
+        $stmt->bindParam(":main_layer_id", $mainLayerId);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!$rows) {
+            $response = [
+                'status' => 500,
+                'message' => 'No area setup found for the given main layer ID.'
+            ];
+            echo json_encode($response);
+            return false;
+        }
+        return $rows;
+    }
 
     /// Fetching Process
 
@@ -347,6 +399,21 @@ class controller extends db
                 return 1;
             } else {
                 return "Failed to delete category.";
+            }
+        } catch (PDOException $error) {
+            return $error->getMessage();
+        }
+    }
+
+    protected function delete_area_setup($category_area_id)
+    {
+        try {
+            $query = $this->PlsConnect()->prepare("DELETE FROM category_area WHERE category_area_id = :category_area_id");
+            $query->bindParam(":category_area_id", $category_area_id);
+            if ($query->execute()) {
+                return 1;
+            } else {
+                return "Failed to delete area setup.";
             }
         } catch (PDOException $error) {
             return $error->getMessage();
@@ -459,6 +526,41 @@ class controller extends db
             // Rollback transaction on error
             $pdo->rollback();
             return ['message' => 'Error updating category: ' . $error->getMessage()];
+        }
+    }
+
+
+    protected function update_area_setup($category_area_id, $polygon_id, $category_coords, $CategoryID, $CategoryLevel)
+    {
+        try {
+            $checking_query = $this->PlsConnect()->prepare(
+                "SELECT 1 FROM category_area WHERE category_area_id = :category_area_id LIMIT 1"
+            );
+            if ($checking_query->execute([':category_area_id' => $category_area_id])) {
+                if (!$checking_query->fetch()) {
+                    return [
+                        'message' => 'Area setup not found.',
+                    ];
+                }
+            }
+            $query = $this->PlsConnect()->prepare("UPDATE category_area SET polygon_id = :polygon_id, category_coordinates = :category_coords, category_id = :category_name, category_level_id = :category_level WHERE category_area_id = :category_area_id");
+            $query->bindParam(":polygon_id", $polygon_id);
+            $query->bindParam(":category_coords", $category_coords);
+            $query->bindParam(":category_name", $CategoryID);
+            $query->bindParam(":category_level", $CategoryLevel);
+            $query->bindParam(":category_area_id", $category_area_id);
+            if ($query->execute()) {
+                return [
+                    'status' => 200,
+                    'message' => 'Area setup updated successfully.',
+                ];
+            } else {
+                return [
+                    'message' => 'Failed to update area setup.',
+                ];
+            }
+        } catch (PDOException $error) {
+            return $error->getMessage();
         }
     }
 

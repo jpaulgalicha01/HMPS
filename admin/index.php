@@ -100,5 +100,7 @@ include_once './includes/navbar.php';
     </div>
   </div>
   <script type="module" src="./js/index.js"></script>
+  <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+
   <?php include_once './includes/footer.php';
   ?>

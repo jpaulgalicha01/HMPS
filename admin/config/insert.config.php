@@ -77,4 +77,29 @@ class insert extends controller
         echo json_encode($response);
         return false;
     }
+
+    public function InsertAreaSetup($polygon_id, $category_coords, $CategoryID, $CategoryLevel)
+    {
+        $stmt = $this->insert_area_setup($polygon_id, $category_coords, $CategoryID, $CategoryLevel);
+        if ($stmt) {
+            if (isset($stmt['status']) && $stmt['status'] == 200) {
+                $response = [
+                    'status' => 200,
+                    'message' => $stmt['message'],
+                ];
+            } else {
+                $response = [
+                    'status' => 409,
+                    'message' => $stmt['message'],
+                ];
+            }
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an error while adding area setup.',
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
 }
