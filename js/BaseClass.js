@@ -44,3 +44,9 @@ function fncLoadDropDownWithFilter({drpName, value, url}) {
         }
     });
 }
+
+function ClsUnidentified(val){
+// Checking if null, undefined, or empty string and returning True if any of those conditions are met
+return val === null || val === undefined || val === "";
+
+}

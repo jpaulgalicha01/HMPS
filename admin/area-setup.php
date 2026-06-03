@@ -23,10 +23,10 @@ include_once './includes/navbar.php';
                             <form id="SubmitCategoryArea">
                                 <h4>Category Information</h4></br>
                                 <div class="mb-3">
-                                    <input id="mainLayer_id" name="mainLayer_id" />
-                                    <input id="category_coords" name="category_coords" />
+                                    <input id="category_area_id" name="category_area_id" type="hidden" />
+                                    <input id="polygon_id" name="polygon_id" type="hidden" />
                                     <label for="FatherName" class="form-label">Category Name:</label>
-                                    <select class="form-select" id="CategoryName">
+                                    <select class="form-select" id="categoryID" name="categoryID">
                                         <option disabled selected>Select Category Name</option>
                                         <?php
                                         $fetchCategory = new fetch();
@@ -43,7 +43,7 @@ include_once './includes/navbar.php';
                                 </div>
                                 <div class="mb-3">
                                     <label for="FatherName" class="form-label">Category Level:</label>
-                                    <select class="form-select" id="CategoryLevel">
+                                    <select class="form-select" id="CategoryLevel" name="CategoryLevel">
                                         <option disabled selected>Select Family Name</option>
                                         <option value="1" style="color:#ff0000;">asdd</option>
                                     </select>

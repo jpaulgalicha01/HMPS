@@ -43,7 +43,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $CategoryID = secured($_POST["CategoryID"]);
         $delete = new delete();
         $delete->deleteCategory($CategoryID);
-    } else {
+    } else if (isset($_POST["submit_area_setup"])) {
+        $category_area_id = secured($_POST["category_area_id"]);
+        $polygon_id = secured($_POST["polygon_id"]);
+        $category_coords = $_POST["category_coords"];
+        $CategoryID = secured($_POST["categoryID"]);
+        $CategoryLevel = secured($_POST["CategoryLevel"]);
+
+        if (empty($category_area_id)) {
+        $insertAreaSetup = new insert();
+        $insertAreaSetup->InsertAreaSetup($polygon_id, $category_coords, $CategoryID, $CategoryLevel);
+        } else {
+            $updateAreaSetup = new update();
+            $updateAreaSetup->UpdateAreaSetup($category_area_id, $polygon_id, $category_coords, $CategoryID, $CategoryLevel);
+        }
+    } else if(isset($_POST["delete_area_polygon"])) {
+        $category_area_id = secured($_POST["category_area_id"]);
+        $deleteAreaSetup = new delete();
+        $deleteAreaSetup->DeleteAreaSetup($category_area_id);
+    }
+    
+    
+    else {
         return http_response_code(404);
     }
 } else if ($_SERVER["REQUEST_METHOD"] == "GET") {
@@ -56,7 +77,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else if (isset($_GET["getCategoryList"])) {
         $fetch = new fetch();
         $fetch->getCategoryList();
-        // } else if(){
+    } else if (isset($_GET["getCategoryLevel"])) {
+        $fetch = new fetch();
+        $fetch->getCategoryLevelId(secured($_GET["categoryID"]));
+    } else if (isset($_GET["getAreaSetupList"])) {
+        $mainLayerId = secured($_GET["mainAreaID"]);
+        $fetch = new fetch();
+        $fetch->getAreaSetupList($mainLayerId);
     } else {
         return http_response_code(404);
     }

@@ -61,19 +61,20 @@ class fetch extends controller
     public function getCategoryLevelId($categoryID)
     {
         $stmt = $this->get_category_level_id($categoryID);
-
-        if (!$stmt) {
-            $response = [
-                'status' => 500,
-                'message' => "There's something Error"
-
-            ];
-        } else {
-            $response = [
-                'status' => 200,
-                'data' => $stmt
-            ];
-        }
+        $response = [
+            'status' => 200,
+            'data' => $stmt,
+        ];
+        echo json_encode($response);
+        return false;
+    }
+    public function getAreaSetupList($mainLayerId)
+    {
+        $stmt = $this->get_area_setup_list($mainLayerId);
+        $response = [
+            'status' => 200,
+            'data' => $stmt,
+        ];
         echo json_encode($response);
         return false;
     }

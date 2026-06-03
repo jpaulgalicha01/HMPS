@@ -51,4 +51,29 @@ class update extends controller
         echo json_encode($response);
         return false;
     }
+
+    public function UpdateAreaSetup($category_area_id, $polygon_id, $category_coords, $CategoryID, $CategoryLevel)
+    {
+        $stmt = $this->update_area_setup($category_area_id, $polygon_id, $category_coords, $CategoryID, $CategoryLevel);
+        if ($stmt) {
+            if (isset($stmt['status']) && $stmt['status'] == 200) {
+                $response = [
+                    'status' => 200,
+                    'message' => $stmt['message'],
+                ];
+            } else {
+                $response = [
+                    'status' => 409,
+                    'message' => $stmt['message'],
+                ];
+            }
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an error while updating area setup.',
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
 }

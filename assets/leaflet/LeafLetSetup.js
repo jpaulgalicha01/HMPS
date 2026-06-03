@@ -15,7 +15,7 @@ export const LeafLets = () => {
         attribution: '© Google',
         maxZoom: 20
         }
-    );
+    ).addTo(map);
 
     // Google Hybrid
     var googleHybrid = L.tileLayer(
@@ -30,14 +30,15 @@ export const LeafLets = () => {
       attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 19
     }
-  ).addTo(map);
+  );
 
     // Layer control
     var baseMaps = {
         "Google Roadmap": googleRoadmap,
-        "Google Satellite": googleSat,
         "Google Hybrid": googleHybrid,
-         "OpenStreetMap": osm
+        "OpenStreetMap": osm,
+        "Google Satellite": googleSat
+
     };
     L.control.layers(baseMaps).addTo(map);
 

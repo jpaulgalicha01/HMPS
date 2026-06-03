@@ -61,4 +61,23 @@ class delete extends controller
             return false;
         }
     }
+    public function DeleteAreaSetup($category_area_id)
+    {
+        $stmt = $this->delete_area_setup($category_area_id);
+        if ($stmt) {
+            if ($stmt == 1) {
+                $response = [
+                    'status' => 200,
+                    'message' => 'Area Setup Deleted Successfully.',
+                ];
+            } else {
+                $response = [
+                    'status' => 409,
+                    'message' => $stmt,
+                ];
+            }
+            echo json_encode($response);
+            return false;
+        }
+    }
 }
