@@ -333,30 +333,9 @@ class controller extends db
         }
     }
 
-
-
     /// Inserting Process
 
     /// Fetching Process
-
-    // protected function get_family_list()
-    // {
-    //     try {
-    //         $query = $this->PlsConnect()->prepare("SELECT * FROM family_name_list");
-    //         $query->execute();
-    //         $rows = $query->fetchAll();
-    //         $modified = array_map(function ($row) {
-    //             $row['family_unique_id'] = $row['family_unique_id'];
-    //             $row['family_name'] = $row['family_name'];
-    //             $row['family_id'] = "FAM-" . str_pad($row['family_id'], 6, '0', STR_PAD_LEFT);
-
-    //             return $row;
-    //         }, $rows);
-    //         return $modified;
-    //     } catch (PDOException $error) {
-    //         return $error->getMessage();
-    //     }
-    // }
 
     protected function get_polygon()
     {
@@ -1268,8 +1247,5 @@ class controller extends db
             return ['message' => 'Error updating Household: ' . $error->getMessage()];
         }
     }
-
-
-
     /// Updating Process
 }

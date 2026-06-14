@@ -39,7 +39,6 @@
 
                                         </div>
                                         <h3 class="mt-3 mb-1">Login</h3>
-                                        <p class="text-muted mb-0" style="font-size: 0.95rem;">Household Mapping and Profiling</p>
                                     </div>
 
                                     <form method="post" action="admin/index.php" autocomplete="on" validate>
@@ -80,12 +79,13 @@
                                         <a href="#" class="text-decoration-none">Forgot password?</a>
                                     </div> -->
                                     </form>
+                                    <div class="text-center text-muted mt-3 mt-0 pb-0" style="font-size: 0.85rem;">
+                                        © Household Mapping and Profiling
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="text-center text-muted mt-3" style="font-size: 0.85rem;">
-                                © Household Mapping and Profiling
-                            </div>
+
                         </div>
                     </div>
                 </div>
