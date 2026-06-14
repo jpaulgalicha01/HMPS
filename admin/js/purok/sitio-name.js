@@ -68,6 +68,8 @@ function deletePurokSitio(purokSitioId, purokSitioName) {
           ClsAlert({ icon: "success", title: response.message });
           // ✅ safer: reload instead of reinit
           $("#PurokTable").DataTable().ajax.reload();
+          $("#frmSubmitPurok")[0].reset();
+
         } else {
           ClsAlert({ icon: "error", title: response.message });
         }
@@ -100,6 +102,7 @@ $(document).on("submit","#frmSubmitPurok",function(e){
 });
 
 $(document).on("reset", "#frmSubmitPurok", function (e) {
+  $("#frmSubmitPurok #PurokUniqueId").val("")
     $("#btnAddPurok").html(`<i class="fas fa-plus"></i> Add Purok/Sitio`);
    $("#btdnResetPurokForm").html(`<i class="fas fa-redo"></i> Reset`);
    

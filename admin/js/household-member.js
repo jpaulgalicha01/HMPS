@@ -367,13 +367,16 @@ $(document).on("submit","#frmHouseHoldList",function(e){
     e.preventDefault();
     var formData = new FormData();
 
-    if(ClsUnidentified($("#household_number").val())){
+    if(ClsUnidentified($("#household_coord").val())){
         ClsAlert({
                 icon: "info",
-                title: "Please mark the location of household"
+                title: "Please mark the location first"
             });
             return;
     }
+
+
+
     const HouseHoldMember = [];
     document.querySelectorAll('#HousholdMemberList tr').forEach(tr => {
         const person_unique_id = tr.querySelector('td:nth-child(1) select').value;
@@ -453,6 +456,8 @@ function deleteHouseHold(ID, HouseholdNumber) {
                     });
                     // ✅ safer: reload instead of reinit
                     $("#householdTable").DataTable().ajax.reload();
+                    $("#frmHouseHoldList")[0].reset();
+
                 } else {
                     ClsAlert({
                         icon: "error",

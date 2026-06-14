@@ -13,19 +13,52 @@ include_once './includes/navbar.php';
   <div class="row">
     <div class="col-12">
       <div class="row gap-lg-0 gap-3">
-        <div class="col-lg-7 col-12 " style="height: 500px;">
+        <div class="col-lg-7 col-12 ">
           <div id="map" style="height: 500px;"></div>
         </div>
-        <div class="col-lg-5 col-12" style="height: 500px;">
+        <div class="col-lg-5 col-12">
           <div class="container-fluid ">
             <div class="row gap-3">
               <div class="col-12 px-0 shadow-lg ">
-                <div class="card" style="height: 250px;">
-                  <h5 class="card-header">LEGEND</h5>
+                <div class="card">
+                  <h5 class="card-header text-uppercase">List of Household Affected in Different Categories</h5>
                   <div class="card-body">
-                    <h5 class="card-title">List of Categories</h5>
-                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                    <div class="row g-2">
+                      <div class="col-md-4 col-12">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                          <div class="fw-semibold">Categories & Levels</div>
+                          <span class="text-muted small">Select to filter</span>
+                        </div>
+                        <div class="border rounded" style="overflow-y: auto">
+                          <ul id="categoryLevelList" class="list-group list-group-flush">
+                            <li class="list-group-item text-muted">Loading...</li>
+                          </ul>
+                        </div>
+                      </div>
 
+                      <div class="col-md-8 col-12" style="height: 250px;">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                          <div class="fw-semibold" id="selectedCategoryLevelHeader">Households</div>
+                          <span class="text-muted small" id="householdCountLabel"></span>
+                        </div>
+                        <div class="border rounded" style="height: 100%; overflow-y: auto;">
+                          <table class="table table-sm table-striped table-hover mb-0" aria-label="Household list">
+                            <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                              <tr>
+                                <th class="text-nowrap">Household #</th>
+                                <th>Head / Member(s)</th>
+                                <th style="width: 1%"></th>
+                              </tr>
+                            </thead>
+                            <tbody id="householdTableBody">
+                              <tr>
+                                <td colspan="3" class="text-center text-muted">Select a category level.</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -106,7 +139,7 @@ include_once './includes/navbar.php';
   <script type="module" src="./js/index.js" defer></script>
   <script src="./js/chart/index-chart.js" defer></script>
   <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
-
+  <script type="module" src="./js/dashboard/category-household.js" defer></script>
 
   <?php include_once './includes/footer.php';
   ?>

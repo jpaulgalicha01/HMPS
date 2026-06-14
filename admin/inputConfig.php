@@ -163,6 +163,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $HouseHoldID = secured($_POST["deleteHouseHoldId"]);
         $delete = new delete();
         $delete->deleteHouseHold($HouseHoldID);
+    } else if (isset($_POST["fetchingHouseHoldInfo"])) {
+        $CategoryID = secured($_POST["category_id"]);
+        $CategoryLevelID = secured($_POST["category_level_id"]);
+
+
+        $fetch = new fetch();
+        $fetch->fetchingHouseHoldInfo($CategoryID, $CategoryLevelID);
     } else {
         return http_response_code(404);
     }

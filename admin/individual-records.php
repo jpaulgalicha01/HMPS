@@ -20,21 +20,21 @@ include_once './includes/navbar.php';
                         <input id="person_unique_id" name="person_unique_id" type="hidden" />
                         <div class="mb-3">
                             <label for="phil_sys_id" class="form-label">PhilSys Card No <i>(If not applicable put N/A)</i> <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="phil_sys_id" name="phil_sys_id" placeholder="Enter PhilSys Card No." required>
+                            <input type="text" class="form-control text-uppercase" id="phil_sys_id" name="phil_sys_id" placeholder="Enter PhilSys Card No." required>
                         </div>
                         <div class="mb-3">
                             <div class="d-lg-flex d-grid  gap-1">
                                 <div class="flex-fill px-0">
                                     <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Enter Last Name" required>
+                                    <input type="text" class="form-control text-uppercase" id="last_name" name="last_name" placeholder="Enter Last Name" required>
                                 </div>
                                 <div class="flex-fill px-0">
                                     <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Enter First Name" required>
+                                    <input type="text" class="form-control text-uppercase" id="first_name" name="first_name" placeholder="Enter First Name" required>
                                 </div>
                                 <div class="flex-fill px-0">
                                     <label for="middle_name" class="form-label">Middle Name</label>
-                                    <input type="text" class="form-control" id="middle_name" name="middle_name" placeholder="Enter Middle Name">
+                                    <input type="text" class="form-control text-uppercase" id="middle_name" name="middle_name" placeholder="Enter Middle Name">
                                 </div>
                                 <div class="flex-fill px-0">
                                     <label for="suffix" class="form-label">Suffix</label>
@@ -59,7 +59,7 @@ include_once './includes/navbar.php';
                                 </div>
                                 <div class="flex-fill px-0">
                                     <label for="birth_place" class="form-label">Birth Place <i>(If not applicable put N/A)</i><span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="birth_place" name="birth_place" placeholder="Enter Birth Place" required>
+                                    <input type="text" class="form-control text-uppercase" id="birth_place" name="birth_place" placeholder="Enter Birth Place" required>
                                 </div>
                             </div>
                         </div>
@@ -85,7 +85,7 @@ include_once './includes/navbar.php';
                                 </div>
                                 <div class="flex-fill px-0">
                                     <label for="religion" class="form-label">Religion <i>(If not applicable put N/A)</i><span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="religion" name="religion" placeholder="Enter Religion" required>
+                                    <input type="text" class="form-control text-uppercase" id="religion" name="religion" placeholder="Enter Religion" required>
                                 </div>
                             </div>
                         </div>
@@ -93,11 +93,11 @@ include_once './includes/navbar.php';
                             <div class="d-lg-flex d-grid  gap-1">
                                 <div class="flex-fill px-0">
                                     <label for="residential_address" class="form-label">Residential Address <i>(If not applicable put N/A)</i><span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="residential_address" name="residential_address" placeholder="Enter Residential Address" required>
+                                    <input type="text" class="form-control text-uppercase" id="residential_address" name="residential_address" placeholder="Enter Residential Address" required>
                                 </div>
                                 <div class="flex-fill px-0">
                                     <label for="citizenship" class="form-label">Citizenship <i>(If not applicable put N/A)</i><span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="citizenship" name="citizenship" placeholder="Enter Citizenship" required>
+                                    <input type="text" class="form-control text-uppercase" id="citizenship" name="citizenship" placeholder="Enter Citizenship" required>
                                 </div>
                             </div>
 
@@ -106,7 +106,7 @@ include_once './includes/navbar.php';
                             <div class="d-lg-flex d-grid  gap-1">
                                 <div class="flex-fill px-0">
                                     <label for="profession" class="form-label">Profession/Occupation</label>
-                                    <input type="text" class="form-control" id="profession" name="profession" placeholder="Enter Profession/Occupation">
+                                    <input type="text" class="form-control text-uppercase" id="profession" name="profession" placeholder="Enter Profession/Occupation">
                                 </div>
                                 <div class="flex-fill px-0">
                                     <label for="contact_no" class="form-label">Contact No. </label>

@@ -190,5 +190,18 @@ class fetch extends controller
             'data' => $stmt,
         ];
         echo json_encode($response);
+        return false;
+    }
+
+
+    public function fetchingHouseHoldInfo($CategoryID, $CategoryLevelID)
+    {
+        $stmt = $this->fetching_house_hold_info($CategoryID, $CategoryLevelID);
+        $response = [
+            'status' => 200,
+            'data' => $stmt,
+        ];
+        echo json_encode($response);
+        return false;
     }
 }

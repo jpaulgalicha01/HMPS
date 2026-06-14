@@ -356,6 +356,7 @@ class controller extends db
             SELECT 
                 cat_name.category_id,
                 cat_name.category_name,
+                cat_list_level.category_level_id,
                 cat_list_level.category_level_name,
                 cat_list_level.category_level_color
             FROM category_name cat_name
@@ -383,6 +384,7 @@ class controller extends db
                 // Add level if exists
                 if (!empty($row['category_level_name'])) {
                     $categories[$catId]["CategoryListLevel"][] = [
+                        "CategoryLevelId" => $row["category_level_id"],
                         "CatLevelName" => $row['category_level_name'],
                         "Color" => $row['category_level_color']
                     ];
@@ -762,6 +764,54 @@ class controller extends db
         $stmt = $this->PlsConnect()->prepare("SELECT `houshold_id`, `household_coord`, `household_number` FROM `household_list`");
         $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $rows;
+    }
+
+
+    protected function fetching_house_hold_info($CategoryID, $CategoryLevelID)
+    {
+        $query = " SELECT 
+            hl.houshold_id AS household_id,
+            hl.household_number,
+            CONCAT(
+                COALESCE(
+                    (SELECT UPPER(
+                        GROUP_CONCAT(
+                            CONCAT(
+                                ir.first_name, ' ', 
+                                ir.middle_name, ' ', 
+                                ir.last_name, 
+                                CASE 
+                                WHEN ir.suffix IS NOT NULL AND ir.suffix <> '' 
+                                THEN CONCAT(', ', ir.suffix) 
+                                ELSE '' 
+                                END
+                            )
+                            SEPARATOR ' AND '
+                        )
+                    )
+                    FROM household_member_list hm
+                    left JOIN individual_records_list ir 
+                    ON hm.person_unique_id = ir.person_unique_id
+                    WHERE hm.household_number = hl.houshold_id 
+                    AND hm.family_order IN (1,2)
+                    ), 'No Head')
+                , ' with ',
+                (SELECT COUNT(*) 
+                FROM household_member_list hm2
+                WHERE hm2.household_number = hl.houshold_id 
+                AND hm2.family_order NOT IN (1,2)),
+                ' member(s)'
+            ) AS FamilyMember
+            FROM household_list hl
+            JOIN category_area c on ST_Within( hl.location,c.boundary)
+            where c.category_id = :category_id AND c.category_level_id = :category_level_id
+        ";
+        $stmt = $this->PlsConnect()->prepare($query);
+        $stmt->bindParam(":category_id", $CategoryID);
+        $stmt->bindParam(":category_level_id", $CategoryLevelID);
+        $stmt->execute();
+        $rows = $stmt->fetchAll();  
         return $rows;
     }
 

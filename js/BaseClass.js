@@ -180,3 +180,13 @@ function fncLoadDropDownWithFilter({drpName, value, url}) {
         }
     });
 }
+
+
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '<')
+    .replaceAll('>', '>')
+    .replaceAll('"', '"')
+    .replaceAll("'", '&#039;');
+}

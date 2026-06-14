@@ -22,7 +22,7 @@ include_once './includes/navbar.php';
                         <input id="PurokUniqueId" name="PurokUniqueId" type="hidden" />
                         <div class="mb-3">
                             <label for="PurokName" class="form-label">Purok Name/Sitio Name</label>
-                            <input type="text" class="form-control" id="PurokName" name="PurokName" placeholder="Enter Purok/Sitio Name" required>
+                            <input type="text" class="form-control text-uppercase" id="PurokName" name="PurokName" placeholder="Enter Purok/Sitio Name" required>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
