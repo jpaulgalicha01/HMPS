@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 14, 2026 at 04:05 AM
+-- Generation Time: Jun 14, 2026 at 03:53 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,48 @@ SET time_zone = "+00:00";
 --
 -- Database: `hmps`
 --
+
+DELIMITER $$
+--
+-- Functions
+--
+CREATE DEFINER=`root`@`localhost` FUNCTION `PolygonFromJSON` (`coords` LONGTEXT) RETURNS GEOMETRY DETERMINISTIC BEGIN
+  DECLARE i INT DEFAULT 0;
+  DECLARE len INT;
+  DECLARE x VARCHAR(50);
+  DECLARE y VARCHAR(50);
+  DECLARE firstX VARCHAR(50);
+  DECLARE firstY VARCHAR(50);
+  DECLARE wkt LONGTEXT DEFAULT 'POLYGON((';
+
+  -- get number of coordinate pairs
+  SET len = JSON_LENGTH(coords);
+
+  WHILE i < len DO
+    SET x = JSON_UNQUOTE(JSON_EXTRACT(coords, CONCAT('$[', i, '][0]')));
+    SET y = JSON_UNQUOTE(JSON_EXTRACT(coords, CONCAT('$[', i, '][1]')));
+
+    IF i = 0 THEN
+      SET firstX = x;
+      SET firstY = y;
+    END IF;
+
+    SET wkt = CONCAT(wkt, x, ' ', y);
+
+    IF i < len - 1 THEN
+      SET wkt = CONCAT(wkt, ',');
+    END IF;
+
+    SET i = i + 1;
+  END WHILE;
+
+  -- close polygon by repeating first point
+  SET wkt = CONCAT(wkt, ',', firstX, ' ', firstY, '))');
+
+  RETURN ST_GeomFromText(wkt);
+END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -50,8 +92,25 @@ CREATE TABLE `category_area` (
   `polygon_id` int(11) NOT NULL,
   `category_id` int(11) NOT NULL,
   `category_level_id` int(11) NOT NULL,
-  `category_coordinates` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL
+  `category_coordinates` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `boundary` polygon NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `category_area`
+--
+DELIMITER $$
+CREATE TRIGGER `category_area_boundary_insert` BEFORE INSERT ON `category_area` FOR EACH ROW BEGIN
+  SET NEW.boundary = PolygonFromJSON(NEW.category_coordinates);
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `category_area_boundary_update` BEFORE UPDATE ON `category_area` FOR EACH ROW BEGIN
+  SET NEW.boundary = PolygonFromJSON(NEW.category_coordinates);
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -87,7 +146,8 @@ CREATE TABLE `household_list` (
   `houshold_id` char(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `household_coord` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `household_number` varchar(20) NOT NULL,
-  `purok_sitio_id` int(11) NOT NULL
+  `purok_sitio_id` int(11) NOT NULL,
+  `location` point GENERATED ALWAYS AS (st_geometryfromtext(concat('POINT(',substring_index(`household_coord`,',',-1),' ',substring_index(`household_coord`,',',1),')'))) STORED
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
