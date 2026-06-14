@@ -1,4 +1,4 @@
-import {LeafLets,LeafLetDrawnItems,LeafLetDrawControl} from "../../assets/leaflet/LeafLetSetup.js";
+import {LeafLets,LeafLetDrawnItems,LeafLetDrawControl} from "../../js/LeafLetSetup.js"
 var map = LeafLets();
 var drawnItems = LeafLetDrawnItems();
 var drawControl = LeafLetDrawControl(map,drawnItems);

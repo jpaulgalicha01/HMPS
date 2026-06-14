@@ -6,76 +6,6 @@ class controller extends db
 
     /// Inserting Process
 
-    protected function add_family($FamilyName, $FamilyUniqueID)
-    {
-        try {
-            // Update Family Name   
-            if ($FamilyUniqueID != "") {
-                $check_if_exists_query = $this->PlsConnect()->prepare("SELECT 1 FROM family_name_list WHERE family_unique_id = :family_unique_id LIMIT 1");
-                $check_if_exists_query->bindParam(":family_unique_id", $FamilyUniqueID);
-                if ($check_if_exists_query->execute()) {
-                    if (!$check_if_exists_query->fetch()) {
-                        return [
-                            'message' => 'Family List not found.',
-                        ];
-                    }
-                    $checking_query = $this->PlsConnect()->prepare(
-                        "SELECT 1 FROM family_name_list WHERE family_name = :family_name AND family_unique_id != :family_unique_id LIMIT 1"
-                    );
-                    $checking_query->bindParam(":family_name", $FamilyName);
-                    $checking_query->bindParam(":family_unique_id", $FamilyUniqueID);
-                    $checking_query->execute();
-                    if ($checking_query->fetch()) {
-                        return [
-                            'message' => 'Family Name is already used.',
-                        ];
-                    }
-                    $query = $this->PlsConnect()->prepare("UPDATE family_name_list SET family_name = :family_name WHERE family_unique_id = :family_unique_id");
-                    $query->bindParam(":family_name", $FamilyName);
-                    $query->bindParam(":family_unique_id", $FamilyUniqueID);
-                    if ($query->execute()) {
-                        return [
-                            'status' => 200,
-                            'message' => 'Family List Updated Successfully.',
-                        ];
-                    } else {
-                        return [
-                            'message' => 'Failed to update family list.',
-                        ];
-                    }
-                }
-            }
-
-            // Add Family Name
-            else {
-
-                $checking_query = $this->PlsConnect()->prepare(
-                    "SELECT 1 FROM family_name_list WHERE family_name = :family_name LIMIT 1"
-                );
-                $checking_query->bindParam(":family_name", $FamilyName);
-                $checking_query->execute();
-                if ($checking_query->fetch()) {
-                    return [
-                        'message' => 'Family Name is already used.',
-                    ];
-                }
-                $query = $this->PlsConnect()->prepare("INSERT INTO family_name_list (family_unique_id,family_name) VALUES (UUID(),:family_name)");
-                $query->bindParam(":family_name", $FamilyName);
-                if ($query->execute()) {
-                    return [
-                        'status' => 200,
-                        'message' => 'Family List Added Successfully.',
-                    ];
-                } else {
-                    return [
-                        'message' => 'Failed to add family list.',
-                    ];
-                }
-            }
-        } catch (PDOException $error) {
-            return $error->getMessage();
-        }
-    }
 
     protected function save_polygon($coordinates)
     {
@@ -150,6 +80,11 @@ class controller extends db
                 $pdo->rollBack();
             }
             return ['status' => 500, 'message' => $error->getMessage()];
+        } finally {
+            // Dispose/close connection if your wrapper supports it
+            if (method_exists($pdo, 'dispose')) {
+                $pdo->dispose();
+            }
         }
     }
 
@@ -176,28 +111,252 @@ class controller extends db
         }
     }
 
+    protected function add_purok_sitio($PurokName)
+    {
+        $query = $this->PlsConnect()->prepare("SELECT 1 FROM purok_sitio_list WHERE purok_sitio_name = :purok_name LIMIT 1");
+        $query->bindParam(":purok_name", $PurokName);
+        if ($query->execute()) {
+            if ($query->fetch()) {
+                return ['message' => 'Purok/Sitio Name is already used.'];
+            }
+        }
+        $insertQuery = $this->PlsConnect()->prepare("INSERT INTO purok_sitio_list (purok_sitio_name) VALUES (:purok_name)");
+        $insertQuery->bindParam(":purok_name", $PurokName);
+        if ($insertQuery->execute()) {
+            return [
+                'status' => 200,
+                'message' => 'Purok/Sitio added successfully.',
+            ];
+        } else {
+            return [
+                'message' => 'Failed to add Purok/Sitio.',
+            ];
+        }
+    }
+
+    protected function add_personal_information(
+        $PhilSysID,
+        $LastName,
+        $FirstName,
+        $MiddleName,
+        $Suffix,
+        $Birdthdate,
+        $BirthPlace,
+        $Sex,
+        $CivilStatus,
+        $Religion,
+        $ResidentialAddress,
+        $Citizenship,
+        $Profession,
+        $ContactNo,
+        $EmailAddress,
+        $HighestAttainmentEducation,
+        $HighestAttainmentEducationSpecific,
+        $TypeOfDisability,
+        $TypeOfDisabilityOthers
+    ) {
+        try {
+            // 1) Check if personal information already exists by person_unique_id
+            $checkByPersonId = $this->PlsConnect()->prepare(
+                "SELECT 1 FROM individual_records_list WHERE person_unique_id = :person_unique_id LIMIT 1"
+            );
+            $checkByPersonId->bindParam(":person_unique_id", $PersonUniqueID);
+            $checkByPersonId->execute();
+            if ($checkByPersonId->fetch()) {
+                return [
+                    'message' => 'Personal information already exists for this person_unique_id.'
+                ];
+            }
+
+            if (!empty($EmailAddress) || !$EmailAddress == "") {
+                // 2) Check if email already exists
+                $checkByEmail = $this->PlsConnect()->prepare(
+                    "SELECT 1 FROM individual_records_list WHERE email_address = :email_address LIMIT 1"
+                );
+                $checkByEmail->bindParam(":email_address", $EmailAddress);
+                $checkByEmail->execute();
+                if ($checkByEmail->fetch()) {
+                    return [
+                        'message' => 'Email address is already registered.'
+                    ];
+                }
+            }
+
+
+            // 3) Insert data
+            $insert = $this->PlsConnect()->prepare(
+                "INSERT INTO individual_records_list (
+                    person_unique_id,
+                    phil_sys_id,
+                    last_name,
+                    first_name,
+                    middle_name,
+                    suffix,
+                    birdthdate,
+                    birth_place,
+                    sex,
+                    civil_status,
+                    religion,
+                    residential_address,
+                    citizenship,
+                    profession,
+                    contact_no,
+                    email_address,
+                    highest_attainment_education,
+                    highest_attainment_education_specific,
+                    type_of_disability,
+                    type_of_disability_others,
+                    date_encoded
+                ) VALUES (
+                    UUID(),
+                    :phil_sys_id,
+                    :last_name,
+                    :first_name,
+                    :middle_name,
+                    :suffix,
+                    :birdthdate,
+                    :birth_place,
+                    :sex,
+                    :civil_status,
+                    :religion,
+                    :residential_address,
+                    :citizenship,
+                    :profession,
+                    :contact_no,
+                    :email_address,
+                    :highest_attainment_education,
+                    :highest_attainment_education_specific,
+                    :type_of_disability,
+                    :type_of_disability_others,
+                    NOW()
+                )"
+            );
+            // $insert->bindParam(":person_unique_id", new uui());
+            $insert->bindParam(":phil_sys_id", $PhilSysID);
+            $insert->bindParam(":last_name", $LastName);
+            $insert->bindParam(":first_name", $FirstName);
+            $insert->bindParam(":middle_name", $MiddleName);
+            $insert->bindParam(":suffix", $Suffix);
+            $insert->bindParam(":birdthdate", $Birdthdate);
+            $insert->bindParam(":birth_place", $BirthPlace);
+            $insert->bindParam(":sex", $Sex);
+            $insert->bindParam(":civil_status", $CivilStatus);
+            $insert->bindParam(":religion", $Religion);
+            $insert->bindParam(":residential_address", $ResidentialAddress);
+            $insert->bindParam(":citizenship", $Citizenship);
+            $insert->bindParam(":profession", $Profession);
+            $insert->bindParam(":contact_no", $ContactNo);
+            $insert->bindParam(":email_address", $EmailAddress);
+            $insert->bindParam(":highest_attainment_education", $HighestAttainmentEducation);
+            $insert->bindParam(":highest_attainment_education_specific", $HighestAttainmentEducationSpecific);
+            $insert->bindParam(":type_of_disability", $TypeOfDisability);
+            $insert->bindParam(":type_of_disability_others", $TypeOfDisabilityOthers);
+
+            if ($insert->execute()) {
+                return [
+                    'status' => 200,
+                    'message' => 'Personal information saved successfully.'
+                ];
+            }
+
+            return [
+                'status' => 500,
+                'message' => 'Failed to save personal information.'
+            ];
+        } catch (PDOException $error) {
+            return [
+                'status' => 500,
+                'message' => $error->getMessage(),
+            ];
+        }
+    }
+
+
+    protected function add_household_member($HouseHoldCoord, $HouseHoldNumber, $HouseHoldPurokSitio, $HouseHoldMember)
+    {
+
+        $pdo = $this->PlsConnect();
+        try {
+            $HouseHoldMember = json_decode($HouseHoldMember, true);
+            if (!is_array($HouseHoldMember)) {
+                return ['message' => 'Invalid HouseHoldMember JSON'];
+            }
+
+            // Check if category exists
+            $checking_query = $pdo->prepare(
+                "SELECT 1 FROM household_list WHERE household_number = :household_number LIMIT 1"
+            );
+            $checking_query->bindParam(":household_number", $HouseHoldNumber);
+            $checking_query->execute();
+            if ($checking_query->fetch()) {
+                return ['message' => 'Hosuehold Number is already used.'];
+            }
+            $pdo->beginTransaction();
+            $houshold_id = uniqid();
+            $query = $pdo->prepare(
+                "INSERT INTO household_list (`houshold_id`, `household_coord`, `household_number`, `purok_sitio_id`) VALUES (:houshold_id,:household_coord,:household_number,:purok_sitio_id)"
+            );
+            $query->bindParam(":houshold_id", $houshold_id);
+            $query->bindParam(":household_coord", $HouseHoldCoord);
+            $query->bindParam(":household_number", $HouseHoldNumber);
+            $query->bindParam(":purok_sitio_id", $HouseHoldPurokSitio);
+            $query->execute();
+            // Insert levels
+            $insertLevelQuery = $pdo->prepare(
+                "INSERT INTO household_member_list (`household_number`, `person_unique_id`, `family_order`) 
+             VALUES (:household_number, :person_unique_id, :family_order)"
+            );
+
+            foreach ($HouseHoldMember as $HouseHoldMemberList) {
+                $insertLevelQuery->bindParam(":household_number", $houshold_id);
+                $insertLevelQuery->bindParam(":person_unique_id", $HouseHoldMemberList['person_unique_id']);
+                $insertLevelQuery->bindParam(":family_order", $HouseHoldMemberList['family_order']);
+                $insertLevelQuery->execute();
+            }
+
+            $pdo->commit();
+            return [
+                'status' => 200,
+                'message' => 'Household added successfully.'
+            ];
+        } catch (PDOException $error) {
+
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            return ['status' => 500, 'message' => $error->getMessage()];
+        } finally {
+            // Dispose/close connection if your wrapper supports it
+            if (method_exists($pdo, 'dispose')) {
+                $pdo->dispose();
+            }
+        }
+    }
+
+
+
     /// Inserting Process
 
     /// Fetching Process
 
-    protected function get_family_list()
-    {
-        try {
-            $query = $this->PlsConnect()->prepare("SELECT * FROM family_name_list");
-            $query->execute();
-            $rows = $query->fetchAll();
-            $modified = array_map(function ($row) {
-                $row['family_unique_id'] = $row['family_unique_id'];
-                $row['family_name'] = $row['family_name'];
-                $row['family_id'] = "FAM-" . str_pad($row['family_id'], 6, '0', STR_PAD_LEFT);
+    // protected function get_family_list()
+    // {
+    //     try {
+    //         $query = $this->PlsConnect()->prepare("SELECT * FROM family_name_list");
+    //         $query->execute();
+    //         $rows = $query->fetchAll();
+    //         $modified = array_map(function ($row) {
+    //             $row['family_unique_id'] = $row['family_unique_id'];
+    //             $row['family_name'] = $row['family_name'];
+    //             $row['family_id'] = "FAM-" . str_pad($row['family_id'], 6, '0', STR_PAD_LEFT);
 
-                return $row;
-            }, $rows);
-            return $modified;
-        } catch (PDOException $error) {
-            return $error->getMessage();
-        }
-    }
+    //             return $row;
+    //         }, $rows);
+    //         return $modified;
+    //     } catch (PDOException $error) {
+    //         return $error->getMessage();
+    //     }
+    // }
 
     protected function get_polygon()
     {
@@ -210,7 +369,6 @@ class controller extends db
             return $error->getMessage();
         }
     }
-
 
     protected function get_category_list()
     {
@@ -257,7 +415,6 @@ class controller extends db
             return ['status' => 500, 'message' => $error->getMessage()];
         }
     }
-
 
     protected function get_category_details_with_id($CategoryID)
     {
@@ -346,30 +503,293 @@ class controller extends db
                 'status' => 500,
                 'message' => 'No area setup found for the given main layer ID.'
             ];
-            echo json_encode($response);
-            return false;
+            return $response;
         }
         return $rows;
     }
 
-    /// Fetching Process
-
-    /// Deleting Process
-    protected function delete_family_list($FamilyId)
+    protected function get_all_purok_sitio_list()
     {
         try {
-            $query = $this->PlsConnect()->prepare("DELETE FROM family_name_list WHERE family_unique_id = :family_unique_id");
-            $query->bindParam(":family_unique_id", $FamilyId);
-            if ($query->execute()) {
-                return 1;
-            } else {
-                return "Failed to delete family list.";
-            }
+            $query = $this->PlsConnect()->prepare("SELECT purok_sitio_id, purok_sitio_name FROM purok_sitio_list");
+            $query->execute();
+            $rows = $query->fetchAll();
+            return $rows;
         } catch (PDOException $error) {
             return $error->getMessage();
         }
     }
 
+    protected function get_all_personal_records($term)
+    {
+        try {
+            $query = $this->PlsConnect()->prepare("SELECT
+                    person_unique_id,
+                    CONCAT('REC-', YEAR(date_encoded), '-', LPAD(preson_id, 6, '0')) AS reference_number,
+                    CONCAT(
+                        first_name, ' ', 
+                        middle_name, ' ', 
+                        last_name, 
+                        CASE 
+                            WHEN suffix IS NOT NULL AND suffix <> '' THEN CONCAT(', ', suffix) 
+                            ELSE '' 
+                        END
+                    ) AS full_name
+                FROM individual_records_list 
+                WHERE UPPER(
+                    CONCAT(
+                        first_name, ' ', 
+                        middle_name, ' ', 
+                        last_name, 
+                        CASE 
+                            WHEN suffix IS NOT NULL AND suffix <> '' THEN CONCAT(', ', suffix) 
+                            ELSE '' 
+                        END
+                    )
+                ) LIKE UPPER(:term)
+            ");
+            // Add wildcards here in PHP
+            $likeTerm = "%{$term}%";
+            $query->bindParam(":term", $likeTerm, PDO::PARAM_STR);
+            $query->execute();
+            $rows = $query->fetchAll();
+            $modified = array_map(function ($row) {
+                $row['person_unique_id'] = $row['person_unique_id'];
+                $row['reference_number'] = $row['reference_number'];
+                $row['full_name'] = $row['full_name'];
+                return $row;
+            }, $rows);
+            return $modified;
+        } catch (PDOException $error) {
+            return $error->getMessage();
+        }
+    }
+
+    protected function get_records_with_id($PersonUniqueID)
+    {
+        $query = $this->PlsConnect()->prepare("SELECT person_unique_id,
+                    phil_sys_id,
+                    last_name,
+                    first_name,
+                    middle_name,
+                    suffix,
+                    birdthdate,
+                    birth_place,
+                    sex,
+                    civil_status,
+                    religion,
+                    residential_address,
+                    citizenship,
+                    profession,
+                    contact_no,
+                    email_address,
+                    highest_attainment_education,
+                    highest_attainment_education_specific,
+                    type_of_disability,
+                    type_of_disability_others
+                    FROM individual_records_list
+                    WHERE person_unique_id = :person_unique_id
+                    ");
+        $query->bindParam(":person_unique_id", $PersonUniqueID);
+        $query->execute();
+        $rows = $query->fetchAll();
+
+        $modified = array_map(function ($row) {
+            $row['person_unique_id'] = $row['person_unique_id'];
+            $row['phil_sys_id'] = $row['phil_sys_id'];
+            $row['last_name'] = $row['last_name'];
+            $row['first_name'] = $row['first_name'];
+            $row['middle_name'] = $row['middle_name'];
+            $row['suffix'] = $row['suffix'];
+            $row['birdthdate'] = $row['birdthdate'];
+            $row['birth_place'] = $row['birth_place'];
+            $row['sex'] = $row['sex'];
+            $row['civil_status'] = $row['civil_status'];
+            $row['religion'] = $row['religion'];
+            $row['residential_address'] = $row['residential_address'];
+            $row['citizenship'] = $row['citizenship'];
+            $row['profession'] = $row['profession'];
+            $row['contact_no'] = $row['contact_no'];
+            $row['email_address'] = $row['email_address'];
+            $row['highest_attainment_education'] = $row['highest_attainment_education'];
+            $row['highest_attainment_education_specific'] = $row['highest_attainment_education_specific'];
+            $row['type_of_disability'] = $row['type_of_disability'];
+            $row['type_of_disability_others'] = $row['type_of_disability_others'];
+            return $row;
+        }, $rows);
+
+        return [
+            'status' => 200,
+            'data' => $modified
+        ];
+    }
+
+    protected function get_all_sitio_purok()
+    {
+        $stmt = $this->PlsConnect()->prepare("SELECT purok_sitio_id,purok_sitio_name FROM purok_sitio_list");
+        $stmt->execute();
+        return $stmt;
+    }
+
+    protected function get_houshold_list()
+    {
+        $stmt = $this->PlsConnect()->prepare("SELECT 
+                    hl.houshold_id,
+                    hl.household_number,
+                    ps.purok_sitio_name, 
+                    CONCAT(
+                COALESCE(
+                    (SELECT UPPER(
+                        GROUP_CONCAT(
+                            CONCAT(
+                                ir.first_name, ' ', 
+                                ir.middle_name, ' ', 
+                                ir.last_name, 
+                                CASE 
+                                    WHEN ir.suffix IS NOT NULL AND ir.suffix <> '' 
+                                    THEN CONCAT(', ', ir.suffix) 
+                                    ELSE '' 
+                                END
+                            )
+                            SEPARATOR ' AND '
+                        )
+                    )
+                    FROM household_member_list hm
+                    left JOIN individual_records_list ir 
+                        ON hm.person_unique_id = ir.person_unique_id
+                    WHERE hm.household_number = hl.houshold_id 
+                        AND hm.family_order IN (1,2)
+                ), 'No Head')
+                , ' with ',
+                (SELECT COUNT(*) 
+                    FROM household_member_list hm2
+                    WHERE hm2.household_number = hl.houshold_id 
+                    AND hm2.family_order NOT IN (1,2)),
+                ' member(s)'
+                ) AS FamilyMember
+
+                FROM household_list hl
+                left JOIN purok_sitio_list ps 
+                    ON hl.purok_sitio_id = ps.purok_sitio_id;
+        ");
+        $stmt->execute();
+        $rows = $stmt->fetchAll();
+        $HousholdList = array_map(function ($row) {
+            $row["houshold_id"] = $row["houshold_id"];
+            $row["household_number"] = $row["household_number"];
+            $row["purok_sitio_name"] = $row["purok_sitio_name"];
+            $row["FamilyMember"] = $row["FamilyMember"];
+            return $row;
+        }, $rows);
+
+        return $HousholdList;
+    }
+
+    protected function load_markers($HouseHoldID)
+    {
+        if (empty($HouseHoldID) || $HouseHoldID == 0) {
+            return null;
+        }
+
+        $stmt = $this->PlsConnect()->prepare("
+        SELECT household_coord 
+        FROM household_list 
+        WHERE houshold_id = :houshold_id 
+        LIMIT 1
+    ");
+        $stmt->bindParam(":houshold_id", $HouseHoldID);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $rows;
+    }
+
+    protected function fetch_houshold_info($HouseHoldID)
+    {
+
+
+        if (empty($HouseHoldID) || $HouseHoldID == 0) {
+            return null;
+        }
+
+        $stmt = $this->PlsConnect()->prepare(" SELECT 
+            household_list.houshold_id,
+            household_list.household_coord,
+            household_list.household_number,
+            household_list.purok_sitio_id,
+            individual_records_list.person_unique_id,
+            CONCAT(
+                        first_name, ' ', 
+                        middle_name, ' ', 
+                        last_name, 
+                        CASE 
+                            WHEN suffix IS NOT NULL AND suffix <> '' THEN CONCAT(', ', suffix) 
+                            ELSE '' 
+                        END
+                    ) AS full_name,
+            household_member_list.family_order
+            FROM household_list 
+            left join household_member_list on household_list.houshold_id = household_member_list.household_number
+            left join individual_records_list on household_member_list.person_unique_id = individual_records_list.person_unique_id
+            where `houshold_id`= :houshold_id
+        ");
+        $stmt->bindParam(":houshold_id", $HouseHoldID);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (empty($rows)) {
+            return ['status' => 404, 'message' => 'Household Number not found.'];
+        }
+
+        $HouseHoldList = [
+            "houshold_id" => $rows[0]['houshold_id'],
+            "household_coord" => $rows[0]['household_coord'],
+            "household_number" => $rows[0]['household_number'],
+            "purok_sitio_id" => $rows[0]['purok_sitio_id'],
+            "HouseHoldMemberList" => []
+        ];
+
+        foreach ($rows as $row) {
+            if (!empty($row['person_unique_id'])) {
+                $HouseHoldList["HouseHoldMemberList"][] = [
+                    "person_unique_id" => $row['person_unique_id'],
+                    "full_name" => $row["full_name"],
+                    "family_order" => $row['family_order'],
+                ];
+            }
+        }
+
+        return $HouseHoldList;
+    }
+
+
+    protected function count_population()
+    {
+        $stmt = $this->PlsConnect()->prepare("SELECT * FROM individual_records_list");
+        $stmt->execute();
+        return $stmt;
+    }
+
+    protected function count_household()
+    {
+        $stmt = $this->PlsConnect()->prepare("SELECT * FROM household_list");
+        $stmt->execute();
+        return $stmt;
+    }
+
+
+    protected function fetching_household_coords()
+    {
+
+        $stmt = $this->PlsConnect()->prepare("SELECT `houshold_id`, `household_coord`, `household_number` FROM `household_list`");
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $rows;
+    }
+
+
+    /// Fetching Process
+
+    /// Deleting Process
     protected function delete_polygon($polygonId)
     {
         try {
@@ -419,12 +839,77 @@ class controller extends db
             return $error->getMessage();
         }
     }
+    protected function delete_purok_sitio($PurokUniqueId)
+    {
+        try {
+            $checking_query = $this->PlsConnect()->prepare("SELECT 1 FROM purok_sitio_list WHERE purok_sitio_id = :purok_sitio_id LIMIT 1");
+            $checking_query->bindParam(":purok_sitio_id", $PurokUniqueId);
+            if ($checking_query->execute()) {
+                if (!$checking_query->fetch()) {
+                    return "Purok/Sitio not found.";
+                }
+            }
+
+            $query = $this->PlsConnect()->prepare("DELETE FROM purok_sitio_list WHERE purok_sitio_id = :purok_sitio_id");
+            $query->bindParam(":purok_sitio_id", $PurokUniqueId);
+            if ($query->execute()) {
+                return 1;
+            } else {
+                return "Failed to delete Purok/Sitio.";
+            }
+        } catch (PDOException $error) {
+            return $error->getMessage();
+        }
+    }
+
+    protected function delete_individual_personInfo($PersonUniqueID)
+    {
+        try {
+            $checking_query = $this->PlsConnect()->prepare("SELECT 1 FROM individual_records_list WHERE person_unique_id = :person_unique_id LIMIT 1");
+            $checking_query->bindParam(":person_unique_id", $PersonUniqueID);
+            if ($checking_query->execute()) {
+                if (!$checking_query->fetch()) {
+                    return "No Data Found.";
+                }
+            }
+
+            $query = $this->PlsConnect()->prepare("DELETE FROM individual_records_list WHERE person_unique_id = :person_unique_id");
+            $query->bindParam(":person_unique_id", $PersonUniqueID);
+            if ($query->execute()) {
+                return 1;
+            } else {
+                return "Failed to delete information.";
+            }
+        } catch (PDOException $error) {
+            return $error->getMessage();
+        }
+    }
+
+
+    protected function delete_household($HouseHoldID)
+    {
+        try {
+            $query = $this->PlsConnect()->prepare("DELETE FROM household_list WHERE houshold_id = :houshold_id");
+            $query->bindParam(":houshold_id", $HouseHoldID);
+            if ($query->execute()) {
+                $deleteLevelsQuery = $this->PlsConnect()->prepare(
+                    "DELETE FROM household_member_list WHERE household_number = :household_number"
+                );
+                $deleteLevelsQuery->bindParam(":household_number", $HouseHoldID);
+                $deleteLevelsQuery->execute();
+                return 1;
+            } else {
+                return "Failed to Household.";
+            }
+        } catch (PDOException $error) {
+            return $error->getMessage();
+        }
+    }
 
     /// Deleting Process
 
 
     //// Updating Process
-
     protected function update_polygon($polygonId, $coordinates)
     {
         try {
@@ -455,8 +940,6 @@ class controller extends db
             return $error->getMessage();
         }
     }
-
-
 
     protected function update_category($CategoryID, $CategoryName, $CategoryLevelList)
     {
@@ -563,6 +1046,229 @@ class controller extends db
             return $error->getMessage();
         }
     }
+
+    protected function update_purok_sitio($PurokUniqueId, $PurokName)
+    {
+        try {
+            $checking_query = $this->PlsConnect()->prepare(
+                "SELECT 1 FROM purok_sitio_list WHERE purok_sitio_id = :purok_id LIMIT 1"
+            );
+            $checking_query->bindParam(":purok_id", $PurokUniqueId);
+            if ($checking_query->execute()) {
+                if (!$checking_query->fetch()) {
+                    return [
+                        'message' => 'Purok/Sitio not found.',
+                    ];
+                }
+            }
+            $query = $this->PlsConnect()->prepare("UPDATE purok_sitio_list SET purok_sitio_name = :purok_name WHERE purok_sitio_id = :purok_id");
+            $query->bindParam(":purok_name", $PurokName);
+            $query->bindParam(":purok_id", $PurokUniqueId);
+            if ($query->execute()) {
+                return [
+                    'status' => 200,
+                    'message' => 'Purok/Sitio updated successfully.',
+                ];
+            } else {
+                return [
+                    'message' => 'Failed to update Purok/Sitio.',
+                ];
+            }
+        } catch (PDOException $error) {
+            return $error->getMessage();
+        }
+    }
+
+    protected function update_personal_informdation(
+        $PersonUniqueID,
+        $PhilSysID,
+        $LastName,
+        $FirstName,
+        $MiddleName,
+        $Suffix,
+        $Birdthdate,
+        $BirthPlace,
+        $Sex,
+        $CivilStatus,
+        $Religion,
+        $ResidentialAddress,
+        $Citizenship,
+        $Profession,
+        $ContactNo,
+        $EmailAddress,
+        $HighestAttainmentEducation,
+        $HighestAttainmentEducationSpecific,
+        $TypeOfDisability,
+        $TypeOfDisabilityOthers
+    ) {
+        try {
+            // 1) Check if person_unique_id exists
+            $checking_query = $this->PlsConnect()->prepare(
+                "SELECT 1 FROM individual_records_list WHERE person_unique_id = :person_unique_id LIMIT 1"
+            );
+            $checking_query->bindParam(":person_unique_id", $PersonUniqueID);
+            $checking_query->execute();
+            if (!$checking_query->fetch()) {
+                return [
+                    'status' => 404,
+                    'message' => 'Personal Information of this data is not found',
+                ];
+            }
+
+            // 2) Check email uniqueness (only if changed / if email exists for other person)
+            if (!empty($EmailAddress)) {
+                $checkingEmail = $this->PlsConnect()->prepare(
+                    "SELECT 1 FROM individual_records_list WHERE email_address = :email_address AND person_unique_id != :person_unique_id LIMIT 1"
+                );
+                $checkingEmail->bindParam(':email_address', $EmailAddress);
+                $checkingEmail->bindParam(':person_unique_id', $PersonUniqueID);
+                $checkingEmail->execute();
+
+                if ($checkingEmail->fetch()) {
+                    return [
+                        'status' => 409,
+                        'message' => 'Email address is already use',
+                    ];
+                }
+            }
+
+            // 3) Update record
+            $query = $this->PlsConnect()->prepare(
+                "UPDATE individual_records_list SET
+                    phil_sys_id = :phil_sys_id,
+                    last_name = :last_name,
+                    first_name = :first_name,
+                    middle_name = :middle_name,
+                    suffix = :suffix,
+                    birdthdate = :birdthdate,
+                    birth_place = :birth_place,
+                    sex = :sex,
+                    civil_status = :civil_status,
+                    religion = :religion,
+                    residential_address = :residential_address,
+                    citizenship = :citizenship,
+                    profession = :profession,
+                    contact_no = :contact_no,
+                    email_address = :email_address,
+                    highest_attainment_education = :highest_attainment_education,
+                    highest_attainment_education_specific = :highest_attainment_education_specific,
+                    type_of_disability = :type_of_disability,
+                    type_of_disability_others = :type_of_disability_others
+                 WHERE person_unique_id = :person_unique_id"
+            );
+
+            $query->bindParam(':person_unique_id', $PersonUniqueID);
+            $query->bindParam(':phil_sys_id', $PhilSysID);
+            $query->bindParam(':last_name', $LastName);
+            $query->bindParam(':first_name', $FirstName);
+            $query->bindParam(':middle_name', $MiddleName);
+            $query->bindParam(':suffix', $Suffix);
+            $query->bindParam(':birdthdate', $Birdthdate);
+            $query->bindParam(':birth_place', $BirthPlace);
+            $query->bindParam(':sex', $Sex);
+            $query->bindParam(':civil_status', $CivilStatus);
+            $query->bindParam(':religion', $Religion);
+            $query->bindParam(':residential_address', $ResidentialAddress);
+            $query->bindParam(':citizenship', $Citizenship);
+            $query->bindParam(':profession', $Profession);
+            $query->bindParam(':contact_no', $ContactNo);
+            $query->bindParam(':email_address', $EmailAddress);
+            $query->bindParam(':highest_attainment_education', $HighestAttainmentEducation);
+            $query->bindParam(':highest_attainment_education_specific', $HighestAttainmentEducationSpecific);
+            $query->bindParam(':type_of_disability', $TypeOfDisability);
+            $query->bindParam(':type_of_disability_others', $TypeOfDisabilityOthers);
+
+            if ($query->execute()) {
+                return [
+                    'status' => 200,
+                    'message' => 'Personal information updated successfully.',
+                ];
+            }
+
+            return [
+                'status' => 500,
+                'message' => 'Failed to update personal information.',
+            ];
+        } catch (PDOException $error) {
+            return [
+                'status' => 500,
+                'message' => $error->getMessage(),
+            ];
+        }
+    }
+
+
+    protected function update_household_member($HouseHoldID, $HouseHoldCoord, $HouseHoldNumber, $HouseHoldPurokSitio, $HouseHoldMember)
+    {
+        $pdo = $this->PlsConnect();
+        try {
+            // Decode once here
+            $HouseHoldMember = json_decode($HouseHoldMember, true);
+            if (!is_array($HouseHoldMember)) {
+                return ['message' => 'Invalid HouseHoldMember JSON'];
+            }
+            // Check if category exists
+            $checking_query = $pdo->prepare(
+                "SELECT 1 FROM household_list WHERE houshold_id = :houshold_id LIMIT 1"
+            );
+            $checking_query->bindParam(":houshold_id", $HouseHoldID);
+            $checking_query->execute();
+            if (!$checking_query->fetch()) {
+                return ['message' => 'Household not found.'];
+            }
+
+            // Check for duplicate category name
+            $duplicate_check_query = $pdo->prepare(
+                "SELECT 1 FROM household_list WHERE houshold_id = :houshold_id AND household_number != :household_number LIMIT 1"
+            );
+            $duplicate_check_query->bindParam(":houshold_id", $CategoryName);
+            $duplicate_check_query->bindParam(":household_number", $HouseHoldNumber);
+            $duplicate_check_query->execute();
+            if ($duplicate_check_query->fetch()) {
+                return ['message' => 'Household Number is already used.'];
+            }
+
+            // Start transaction
+            $pdo->beginTransaction();
+            // Update category name
+            $updateQuery = $pdo->prepare(
+                "UPDATE `household_list` SET `household_coord`=:household_coord,`household_number`=:household_number,`purok_sitio_id`=:purok_sitio_id WHERE `houshold_id`=:houshold_id"
+            );
+            $updateQuery->bindParam(":household_coord", $HouseHoldCoord);
+            $updateQuery->bindParam(":household_number", $HouseHoldNumber);
+            $updateQuery->bindParam(":purok_sitio_id", $HouseHoldPurokSitio);
+            $updateQuery->bindParam(":houshold_id", $HouseHoldID);
+            $updateQuery->execute();
+
+            // Delete existing levels
+            $deleteLevelsQuery = $pdo->prepare(
+                "DELETE FROM household_member_list WHERE household_number = :household_number"
+            );
+            $deleteLevelsQuery->bindParam(":household_number", $HouseHoldID);
+            $deleteLevelsQuery->execute();
+            // // Insert new levels
+            $insertLevelQuery = $pdo->prepare(
+                "INSERT INTO household_member_list (`household_number`, `person_unique_id`, `family_order`) 
+             VALUES (:household_number, :person_unique_id, :family_order)"
+            );
+
+            foreach ($HouseHoldMember as $HouseHoldMemberList) {
+                $insertLevelQuery->bindParam(":household_number", $HouseHoldID);
+                $insertLevelQuery->bindParam(":person_unique_id", $HouseHoldMemberList['person_unique_id']);
+                $insertLevelQuery->bindParam(":family_order", $HouseHoldMemberList['family_order']);
+                $insertLevelQuery->execute();
+            }
+            // Commit transaction
+            $pdo->commit();
+
+            return ['status' => 200, 'message' => 'Household updated successfully.'];
+        } catch (PDOException $error) {
+            // Rollback transaction on error
+            $pdo->rollback();
+            return ['message' => 'Error updating Household: ' . $error->getMessage()];
+        }
+    }
+
 
 
     /// Updating Process

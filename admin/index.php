@@ -13,13 +13,13 @@ include_once './includes/navbar.php';
   <div class="row">
     <div class="col-12">
       <div class="row gap-lg-0 gap-3">
-        <div class="col-lg-6 col-12" style="height: 500px;">
+        <div class="col-lg-7 col-12 " style="height: 500px;">
           <div id="map" style="height: 500px;"></div>
         </div>
-        <div class="col-lg-6 col-12" style="height: 500px;">
+        <div class="col-lg-5 col-12" style="height: 500px;">
           <div class="container-fluid ">
             <div class="row gap-3">
-              <div class="col-12">
+              <div class="col-12 px-0 shadow-lg ">
                 <div class="card" style="height: 250px;">
                   <h5 class="card-header">LEGEND</h5>
                   <div class="card-body">
@@ -30,25 +30,38 @@ include_once './includes/navbar.php';
                 </div>
               </div>
 
-              <div class="col-12" style="height:250px">
+              <div class="col-12 px-0 " style="height:250px">
                 <div class="row">
 
 
-                  <div class="col-6">
+                  <div class="col-6 ">
                     <div class="card h-100">
-                      <h5 class="card-header">TOTAL NUMBER OF FAMILIES</h5>
+                      <h5 class="card-header">TOTAL NUMBER OF POPULATION</h5>
                       <div class="card-body">
                         <!-- <h5 class="card-title"><i class="bi bi-people-fill"></i> 1,234</h5> -->
-                        <p class="card-text fs-1"><i class="fas fa-users"></i> 1,234</p>
+                        <p class="card-text fs-1"><i class="fas fa-users"></i>
+                          <?php
+                          $count_total_users = new fetch();
+                          $count_total_users->CountPopulation();
+
+                          ?>
+                        </p>
                       </div>
                     </div>
                   </div>
 
-                  <div class="col-6">
+                  <div class="col-6 ">
                     <div class="card h-100">
                       <h5 class="card-header">TOTAL NUMBER OF HOUSEHOLD</h5>
                       <div class="card-body">
-                        <p class="card-text fs-1"><i class="fas fa-home"></i> 1,234</p>
+                        <p class="card-text fs-1"><i class="fas fa-home"></i>
+                          <?php
+                          $count_total_household = new fetch();
+                          $count_total_household->CountHouseHold();
+
+                          ?>
+
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -61,46 +74,39 @@ include_once './includes/navbar.php';
         </div>
       </div>
 
-      <div class="col-12 pt-lg-5 pt-1">
-        <div class="card" style="height: 250px;">
-          <h5 class="card-header">HOUSEHOLD LIST</h5>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-bordered table-striped">
-                <thead>
-                  <tr>
-                    <th>Household ID</th>
-                    <th>Head of Household</th>
-                    <th>Number of Members</th>
-                    <th>Address</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>HH001</td>
-                    <td>Juan Dela Cruz</td>
-                    <td>5</td>
-                    <td>123 Main St, Barangay 1</td>
-                  </tr>
-                  <tr>
-                    <td>HH002</td>
-                    <td>Maria Santos</td>
-                    <td>3</td>
-                    <td>456 Elm St, Barangay 2</td>
-                  </tr>
-                  <!-- More rows as needed -->
-                </tbody>
-              </table>
+      <div class="row gap-lg-0 gap-5 pt-md-5 pt-1 ">
+        <div class="col-md-6  shadow-lg ">
+          <div class=" card h-100 ">
+            <h5 class=" card-header">TOTAL NUMBER OF PWD's</h5>
+            <div class="card-body">
+              <div id="chart">
+              </div>
             </div>
           </div>
         </div>
+
+        <div class="col-md-6 shadow-lg ">
+          <div class="card h-100">
+            <h5 class="card-header">COUNT NUMBER OF AGE CATEGORIES</h5>
+            <div class="card-body">
+              <div id="chartAgeCat">
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
       </div>
 
 
     </div>
   </div>
-  <script type="module" src="./js/index.js"></script>
+  <script src="../assets/apex-chart/apexcharts.js" defer></script>
+  <script type="module" src="./js/index.js" defer></script>
+  <script src="./js/chart/index-chart.js" defer></script>
   <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+
 
   <?php include_once './includes/footer.php';
   ?>

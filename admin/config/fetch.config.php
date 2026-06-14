@@ -2,18 +2,41 @@
 class fetch extends controller
 {
 
-    public function getFamilyList()
+    public function CountPopulation()
     {
-        $stmt = $this->get_family_list();
 
-        $response = [
-            'status' => 200,
-            'data' => $stmt,
-        ];
-
-        echo json_encode($response);
-        return false;
+        $stmt = $this->count_population();
+        if ($stmt->rowCount()) {
+            echo $stmt->rowCount();
+        } else {
+            echo "0";
+        }
     }
+
+    public function CountHouseHold()
+    {
+
+        $stmt = $this->count_household();
+        if ($stmt->rowCount()) {
+            echo $stmt->rowCount();
+        } else {
+            echo "0";
+        }
+    }
+
+
+    // public function getFamilyList()
+    // {
+    //     $stmt = $this->get_family_list();
+
+    //     $response = [
+    //         'status' => 200,
+    //         'data' => $stmt,
+    //     ];
+
+    //     echo json_encode($response);
+    //     return false;
+    // }
     public function getPolygon()
     {
         $stmt = $this->get_polygon();
@@ -71,11 +94,101 @@ class fetch extends controller
     public function getAreaSetupList($mainLayerId)
     {
         $stmt = $this->get_area_setup_list($mainLayerId);
+        if (isset($stmt['status'])) {
+            $response = [
+                'status' => $stmt["status"],
+                'message' => $stmt["message"]
+            ];
+        } else {
+            $response = [
+                'status' => 200,
+                'data' => $stmt,
+            ];
+        }
+
+        echo json_encode($response);
+        return false;
+    }
+    public function getAllPurokSitioList()
+    {
+        $stmt = $this->get_all_purok_sitio_list();
         $response = [
             'status' => 200,
             'data' => $stmt,
         ];
         echo json_encode($response);
         return false;
+    }
+
+    public function getAllPersonalRecords($term)
+    {
+        $stmt = $this->get_all_personal_records($term);
+        $response = [
+            'status' => 200,
+            'data' => $stmt,
+        ];
+        echo json_encode($response);
+        return false;
+    }
+    public function getRecordsWithID($PersonUniqueID)
+    {
+        $stmt = $this->get_records_with_id($PersonUniqueID);
+        echo json_encode($stmt);
+        return false;
+    }
+    public function getAllSitioPurok()
+    {
+        $stmt = $this->get_all_sitio_purok();
+        return $stmt;
+    }
+
+    public function getHousholdList()
+    {
+        $stmt = $this->get_houshold_list();
+        $response = [
+            'status' => 200,
+            'data' => $stmt,
+        ];
+        echo json_encode($response);
+        return false;
+    }
+
+    public function loadMarkers($HouseHoldID)
+    {
+        $stmt = $this->load_markers($HouseHoldID);
+        $response = [
+            'status' => 200,
+            'data' => $stmt,
+        ];
+        echo json_encode($response);
+        return false;
+    }
+    public function fetchHousholdInfo($HouseholdID)
+    {
+
+        $stmt = $this->fetch_houshold_info($HouseholdID);
+        if (isset($stmt['status'])) {
+            $response = [
+                'status' => $stmt["status"],
+                'message' => $stmt["message"]
+            ];
+        } else {
+            $response = [
+                'status' => 200,
+                'data' => $stmt,
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
+
+    public function fetchingHouseholdCoords()
+    {
+        $stmt = $this->fetching_household_coords();
+        $response = [
+            'status' => 200,
+            'data' => $stmt,
+        ];
+        echo json_encode($response);
     }
 }
