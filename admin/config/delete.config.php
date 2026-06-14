@@ -3,25 +3,6 @@
 class delete extends controller
 {
 
-    public function deleteFamilyList($FamilyId)
-    {
-        $stmt = $this->delete_family_list($FamilyId);
-        if ($stmt) {
-            if ($stmt == 1) {
-                $response = [
-                    'status' => 200,
-                    'message' => 'Family List Deleted Successfully.',
-                ];
-            } else {
-                $response = [
-                    'status' => 409,
-                    'message' => $stmt,
-                ];
-            }
-            echo json_encode($response);
-            return false;
-        }
-    }
     public function deletePolygon($polygonId)
     {
         $stmt = $this->delete_polygon($polygonId);
@@ -37,9 +18,14 @@ class delete extends controller
                     'message' => $stmt,
                 ];
             }
-            echo json_encode($response);
-            return false;
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an error while deleting polygon.',
+            ];
         }
+        echo json_encode($response);
+        return false;
     }
 
     public function deleteCategory($CategoryID)
@@ -57,9 +43,14 @@ class delete extends controller
                     'message' => $stmt,
                 ];
             }
-            echo json_encode($response);
-            return false;
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an error while deleting category.',
+            ];
         }
+        echo json_encode($response);
+        return false;
     }
     public function DeleteAreaSetup($category_area_id)
     {
@@ -76,8 +67,86 @@ class delete extends controller
                     'message' => $stmt,
                 ];
             }
-            echo json_encode($response);
-            return false;
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an error while deleting Area Setup.',
+            ];
         }
+        echo json_encode($response);
+        return false;
+    }
+    public function deletePurokSitio($PurokUniqueId)
+    {
+        $stmt = $this->delete_purok_sitio($PurokUniqueId);
+        if ($stmt) {
+            if ($stmt == 1) {
+                $response = [
+                    'status' => 200,
+                    'message' => 'Purok/Sitio Deleted Successfully.',
+                ];
+            } else {
+                $response = [
+                    'status' => 409,
+                    'message' => $stmt,
+                ];
+            }
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an error while deleting Purok/Sitio.',
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
+    public function deleteIndividualPersonInfo($PersonUniqueID)
+    {
+        $stmt = $this->delete_individual_personInfo($PersonUniqueID);
+        if ($stmt) {
+            if ($stmt == 1) {
+                $response = [
+                    'status' => 200,
+                    'message' => 'Deleted Successfully.',
+                ];
+            } else {
+                $response = [
+                    'status' => 409,
+                    'message' => $stmt,
+                ];
+            }
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an error while deleting Purok/Sitio.',
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
+    public function deleteHouseHold($HouseHoldID)
+    {
+
+        $stmt = $this->delete_household($HouseHoldID);
+        if ($stmt) {
+            if ($stmt == 1) {
+                $response = [
+                    'status' => 200,
+                    'message' => 'Household Deleted Successfully.',
+                ];
+            } else {
+                $response = [
+                    'status' => 409,
+                    'message' => $stmt,
+                ];
+            }
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an error while deleting category.',
+            ];
+        }
+        echo json_encode($response);
+        return false;
     }
 }

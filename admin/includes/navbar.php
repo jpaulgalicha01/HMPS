@@ -3,7 +3,12 @@
 </div>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">HMPS</a>
+    <div class="mx-auto" style="width: 50px; height: 50px; border-radius: 18px;">
+      <a class="navbar-brand text-center " href="#">
+        <img src="../assets/img/Logo.png" alt="logo" class="img-fluid d-flex justify-content-center align-self-center">
+      </a>
+    </div>
+    <!-- HMPS -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -18,7 +23,7 @@
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link secondary dropdown-toggle 
-                  <?= $_SESSION['Active_Navigate'] == 'Family List' ||
+                  <?= $_SESSION['Active_Navigate'] == 'Individual Records of Barangay Inhabitants' ||
                     $_SESSION['Active_Navigate'] ==
                     'Household & Household Members'
                     ? 'active'
@@ -27,9 +32,9 @@
               <i class="fas fa-list"></i> List of Household
             </a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item <?= $_SESSION['Active_Navigate'] == 'Family List'
+              <li><a class="dropdown-item <?= $_SESSION['Active_Navigate'] == 'Individual Records of Barangay Inhabitants'
                                             ? 'active'
-                                            : '' ?>" href="family-list.php">Family List</a></li>
+                                            : '' ?>" href="individual-records.php">Individual Records of Barangay Inhabitants</a></li>
               <li><a class="dropdown-item <?= $_SESSION['Active_Navigate'] == 'Household & Household Members'
                                             ? 'active'
                                             : '' ?>" href="household-member.php">Household & Household Members</a></li>
@@ -54,6 +59,9 @@
               <li><a class="dropdown-item <?= $_SESSION['Active_Navigate'] == 'Barangay Setup'
                                             ? 'active'
                                             : '' ?>" href="barangay-setup.php">Barangay Setup</a></li>
+              <li><a class="dropdown-item <?= $_SESSION['Active_Navigate'] == 'Purok/Sitio List'
+                                            ? 'active'
+                                            : '' ?>" href="purok-list.php">Purok/Sitio List</a></li>
               <li><a class="dropdown-item <?= $_SESSION['Active_Navigate'] == 'Categories Setup'
                                             ? 'active'
                                             : '' ?>" href="category.php">Categories Setup</a></li>
@@ -101,4 +109,4 @@
     </div>
 </nav>
 
-<body class="bg-light">
+<body class="bg-light mb-5">

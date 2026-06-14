@@ -65,6 +65,7 @@ export const LeafLetDrawControl = (map,drawnItems) => {
         rectangle: false, 
         circle: false,
         marker: false,
+
     },
     edit: {
         featureGroup: drawnItems, // ✅ required for edit/delete
@@ -76,6 +77,48 @@ export const LeafLetDrawControl = (map,drawnItems) => {
     return drawControl;
 }
 
+// Creates a small helper to capture marker coordinates when markers are created/dragged.
+// Usage:
+//   setupDraggableMarkerCoordCapture(map, drawnItems, (coords, marker) => { ... })
+export const setupDraggableMarkerCoordCapture = (map, drawnItems, onCoords) => {
+    map.on(L.Draw.Event.CREATED, function (e) {
+        const layer = e.layer;
+
+        // Only handle marker layers
+        if (typeof layer.getLatLng !== 'function') return;
+
+        // Enable draggable (Leaflet.Draw marker is often not draggable by default)
+        layer.options = layer.options || {};
+        layer.options.draggable = true;
+
+        // Make draggable for marker layers.
+        // Leaflet.Draw-created marker usually already supports dragging, so enabling handler is enough.
+        if (layer.dragging && typeof layer.dragging.enable === 'function') {
+            layer.dragging.enable();
+        }
+
+        // Initial placement coords
+        const coords = layer.getLatLng();
+        if (typeof onCoords === 'function') {
+            onCoords({ lat: coords.lat, lng: coords.lng }, layer);
+        }
+
+        // Updated coords after drag
+        layer.on('dragend', function (ev) {
+            const ll = ev.target.getLatLng();
+            if (typeof onCoords === 'function') {
+                onCoords({ lat: ll.lat, lng: ll.lng }, ev.target);
+            }
+        });
+
+        // Keep in editable layers
+        if (drawnItems && typeof drawnItems.addLayer === 'function') {
+            drawnItems.addLayer(layer);
+        }
+    });
+};
+
+
 
 export const LeafLetRemoveBackGround = () => {
 var world = [
@@ -84,3 +127,4 @@ var world = [
 return world;
 
 }
+

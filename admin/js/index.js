@@ -1,11 +1,16 @@
-import { LeafLets, LeafLetDrawnItems, LeafLetRemoveBackGround } from "../../assets/leaflet/LeafLetSetup.js";
+import { LeafLets, LeafLetDrawnItems, LeafLetRemoveBackGround } from "../../js/LeafLetSetup.js";
 var map = LeafLets();
 var drawnItems = LeafLetDrawnItems();
 var removeBackGround = LeafLetRemoveBackGround();
-  
+
+var toolTip = "";
+
+
 $(document).ready(function(){
 loadPolygons();
 LoadCategoryListPolygon();
+chartAgeCat();
+chartPwdCat();
 })
 
 // Main polygon for the area setup
@@ -21,7 +26,7 @@ function loadPolygons() {
                 fillOpacity: .9
             }).addTo(map);
             map.fitBounds(mainLayer.getBounds());
-            addDummyMarkers(mainLayer, 30); // e.g. 30 random house markers
+            addDummyMarkers(); // e.g. 30 random house markers
 
         });
     }, "GET");
@@ -79,26 +84,29 @@ function getRandomPointInBounds(bounds) {
     return L.latLng(lat, lng);
 }
 
-// Place 20+ dummy markers
-function addDummyMarkers(mainLayer, count = 25) {
-    var bounds = mainLayer.getBounds();
-    for (var i = 0; i < count; i++) {
-        var point = getRandomPointInBounds(bounds);
+function addDummyMarkers() {
 
-        // Optional: check if point is inside polygon (using turf.js)
-        var pt = turf.point([point.lng, point.lat]);
-        var poly = mainLayer.toGeoJSON();
-        if (turf.booleanPointInPolygon(pt, poly)) {
-            L.marker(point, { icon: houseIcon })
-             .addTo(map)
-             .bindTooltip("Dummy House " + (i+1), { permanent: false, direction: "top" });
-        } else {
-            i--; // retry if point falls outside polygon
-        }
-    }
+    fncExecute("inputConfig.php?fetchingHouseholdCoords=true",null,function(response){
+            var res = JSON.parse(response);
+            if(res.status == 200){
+                res.data.forEach(row => {
+
+                var parts = row.household_coord.split(",");
+                var lat = parseFloat(parts[0]);
+                var lng = parseFloat(parts[1]);
+
+                var m = L.marker([lat, lng], { icon: houseIcon }).addTo(map);
+
+                m.bindPopup("Household Number : " + row.household_number);
+
+                // Click marker => show alert (and popup)
+                m.on('click', function () {
+                    // map.fitBounds(m.getBounds ? m.getBounds() : L.latLngBounds([m.getLatLng()]));
+                    
+                });
+                    })
+                }
+
+    },"GET");
+
 }
-
-// Call after mainLayer is loaded
-
-
-

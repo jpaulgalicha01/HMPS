@@ -76,4 +76,117 @@ class update extends controller
         echo json_encode($response);
         return false;
     }
+    public function updatePurokSitio($PurokUniqueId, $PurokName)
+    {
+        $stmt = $this->update_purok_sitio($PurokUniqueId, $PurokName);
+        if ($stmt) {
+            if (isset($stmt['status']) && $stmt['status'] == 200) {
+                $response = [
+                    'status' => 200,
+                    'message' => $stmt['message'],
+                ];
+            } else {
+                $response = [
+                    'status' => 409,
+                    'message' => $stmt['message'],
+                ];
+            }
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an error while updating purok/sitio.',
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
+    public function updatePersonalInformdation(
+        $PersonUniqueID,
+        $PhilSysID,
+        $LastName,
+        $FirstName,
+        $MiddleName,
+        $Suffix,
+        $Birdthdate,
+        $BirthPlace,
+        $Sex,
+        $CivilStatus,
+        $Religion,
+        $ResidentialAddress,
+        $Citizenship,
+        $Profession,
+        $ContactNo,
+        $EmailAddress,
+        $HighestAttainmentEducation,
+        $HighestAttainmentEducationSpecific,
+        $TypeOfDisability,
+        $TypeOfDisabilityOthers
+    ) {
+        $stmt = $this->update_personal_informdation(
+            $PersonUniqueID,
+            $PhilSysID,
+            $LastName,
+            $FirstName,
+            $MiddleName,
+            $Suffix,
+            $Birdthdate,
+            $BirthPlace,
+            $Sex,
+            $CivilStatus,
+            $Religion,
+            $ResidentialAddress,
+            $Citizenship,
+            $Profession,
+            $ContactNo,
+            $EmailAddress,
+            $HighestAttainmentEducation,
+            $HighestAttainmentEducationSpecific,
+            $TypeOfDisability,
+            $TypeOfDisabilityOthers
+        );
+        if ($stmt) {
+            if (isset($stmt['status']) && $stmt['status'] == 200) {
+                $response = [
+                    'status' => 200,
+                    'message' => $stmt['message'],
+                ];
+            } else {
+                $response = [
+                    'status' => $stmt["status"],
+                    'message' => $stmt['message'],
+                ];
+            }
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an during updating data.',
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
+    public function updateHouseHoldMember($HouseHoldID, $HouseHoldCoord, $HouseHoldNumber, $HouseHoldPurokSitio, $HouseHoldMember)
+    {
+        $stmt = $this->update_household_member($HouseHoldID, $HouseHoldCoord, $HouseHoldNumber, $HouseHoldPurokSitio, $HouseHoldMember);
+        if ($stmt) {
+            if (isset($stmt['status']) && $stmt['status'] == 200) {
+                $response = [
+                    'status' => 200,
+                    'message' => $stmt['message'],
+                ];
+            } else {
+                $response = [
+                    'status' => 409,
+                    'message' => $stmt['message'],
+                ];
+            }
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an during updating data.',
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
 }

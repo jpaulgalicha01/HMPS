@@ -1,5 +1,4 @@
-import { LeafLets, LeafLetDrawnItems, LeafLetDrawControl, LeafLetRemoveBackGround } from "../../assets/leaflet/LeafLetSetup.js";
-
+import { LeafLets, LeafLetDrawnItems, LeafLetDrawControl, LeafLetRemoveBackGround } from "../../js/LeafLetSetup.js"
 var map = LeafLets();
 var drawnItems = LeafLetDrawnItems();
 var drawControl = LeafLetDrawControl(map, drawnItems);
@@ -10,11 +9,38 @@ var removeBackGround = LeafLetRemoveBackGround();
 var selectedDrawnLayer = null; // Tracks the active/focused drawn layer
 var isEditLocked = false;      // 🌟 Tracks if a layer has an uncompleted out-of-bounds error
 
+
+
+
 $(document).ready(async function() {
     await LegendList();
     await loadPolygons();  
+    await setDrawControl();
+
    
 });
+
+
+function setDrawControl() {
+    if (drawControl) {
+        map.removeControl(drawControl); // ✅ clears previous controller
+    }
+
+    drawControl = new L.Control.Draw({
+        position: 'topleft',
+        draw: {
+            polygon: true,
+            polyline: false,
+            rectangle: false,
+            circle: false,
+            marker: false,
+        },
+     
+    });
+
+    map.addControl(drawControl);
+    map.addLayer(drawnItems);
+}
 
 // Adding Polygon from databse to map
 async function LoadCategoryListPolygon() {
