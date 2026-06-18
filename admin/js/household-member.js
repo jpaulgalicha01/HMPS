@@ -37,8 +37,48 @@ $(document).ready(function () {
     loadPolygons();
     setDrawControl();
     initializePropertyTable();
+    LoadCategoryListPolygon();
+
 
 });
+
+
+function LoadCategoryListPolygon() {
+    fncExecute(`inputConfig.php?getAreaSetupList=true&mainAreaID=2`, null, function (response) {
+        var res = JSON.parse(response);
+        if (res.status == 200) {
+            // drawnItems.clearLayers();
+            res.data.forEach(function (area) {
+                // Adding in drawn items in main layer
+                var coords = JSON.parse(area.category_coordinates);
+                var layer = L.polygon(coords.map(c => [c[1], c[0]])).addTo(map);
+                layer.options.dbId = area.category_area_id; // Store the DB ID
+                layer.options.categoryId = area.category_id; // Store the Category ID
+                layer.options.categoryLevelId = area.category_level_id; // Store the Category Level ID
+                layer.options.originalColor = area.category_level_color; // Store original color for later use
+                // drawnItems.addLayer(layer);
+                // Color the polygon based on category level
+                layer.setStyle({ color: area.category_level_color, weight: 3 });
+                 // Compute centroid of polygon
+                var centroid = layer.getBounds().getCenter();
+                // Clear all tooltips first to prevent duplicates
+                layer.unbindTooltip();
+
+                // Add a permanent tooltip at centroid
+                L.tooltip({
+                    permanent: true,
+                    direction: "center",
+                    className: "polygon-label"
+                })
+                .setContent(area.category_name + " (" + area.category_level_name + ")") // e.g. "Flood Area (High Risk)"
+                .setLatLng(centroid)
+                .addTo(map);
+                // attachPolygonClickHandler(layer); // Enable click-to-edit functionality
+            })}
+
+
+    },"GET");
+}
 
 // Initialize table
 const initializePropertyTable = () => {
@@ -108,8 +148,6 @@ function loadMarkers(ID) {
         var res = JSON.parse(response);
         if (res.status === 200) {
             drawnItems.clearLayers();
-            console.log(res.data);
-
             res.data.forEach(function (item) {
                 // Split "lat,lng" string into array
                 var parts = item.household_coord.split(",");

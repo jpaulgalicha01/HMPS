@@ -707,10 +707,13 @@ class controller extends db
                             ELSE '' 
                         END
                     ) AS full_name,
-            household_member_list.family_order
+            household_member_list.family_order,
+            purok_sitio_list.purok_sitio_name
             FROM household_list 
             left join household_member_list on household_list.houshold_id = household_member_list.household_number
             left join individual_records_list on household_member_list.person_unique_id = individual_records_list.person_unique_id
+            left join purok_sitio_list on household_list.purok_sitio_id = purok_sitio_list.purok_sitio_id
+
             where `houshold_id`= :houshold_id
         ");
         $stmt->bindParam(":houshold_id", $HouseHoldID);
@@ -726,6 +729,7 @@ class controller extends db
             "household_coord" => $rows[0]['household_coord'],
             "household_number" => $rows[0]['household_number'],
             "purok_sitio_id" => $rows[0]['purok_sitio_id'],
+            "purok_sitio_name" => $rows[0]['purok_sitio_name'],
             "HouseHoldMemberList" => []
         ];
 
@@ -811,7 +815,7 @@ class controller extends db
         $stmt->bindParam(":category_id", $CategoryID);
         $stmt->bindParam(":category_level_id", $CategoryLevelID);
         $stmt->execute();
-        $rows = $stmt->fetchAll();  
+        $rows = $stmt->fetchAll();
         return $rows;
     }
 

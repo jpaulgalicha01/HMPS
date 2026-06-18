@@ -4,13 +4,14 @@ var drawnItems = LeafLetDrawnItems();
 var removeBackGround = LeafLetRemoveBackGround();
 
 var toolTip = "";
+var mainBoundaryLayers = [];
 
 
 $(document).ready(function(){
-loadPolygons();
-LoadCategoryListPolygon();
-chartAgeCat();
-chartPwdCat();
+    loadPolygons();
+    LoadCategoryListPolygon();
+    // chartAgeCat();
+    // chartPwdCat();
 })
 
 // Main polygon for the area setup
@@ -19,6 +20,8 @@ function loadPolygons() {
         var data = JSON.parse(response);
         data.forEach(function (poly) {
             var mainLayer = L.polygon(poly.coordinates).addTo(map);
+            mainBoundaryLayers.push(mainLayer);
+
             mainLayer.options.dbId = poly.id; // Store the DB ID
             var mask = L.polygon([removeBackGround].concat([poly.coordinates]), {
                 stroke: false,
@@ -86,27 +89,90 @@ function getRandomPointInBounds(bounds) {
 
 function addDummyMarkers() {
 
+    // Keep track of the map view so we can restore it when closing the modal
+    // if (!window.__householdMapView) {
+    //     window.__householdMapView = {
+    //         center: (map && map.getCenter) ? map.getCenter() : null,
+    //         zoom: (map && map.getZoom) ? map.getZoom() : null
+    //     };
+    // }
+
     fncExecute("inputConfig.php?fetchingHouseholdCoords=true",null,function(response){
             var res = JSON.parse(response);
+
             if(res.status == 200){
                 res.data.forEach(row => {
-
                 var parts = row.household_coord.split(",");
                 var lat = parseFloat(parts[0]);
                 var lng = parseFloat(parts[1]);
-
                 var m = L.marker([lat, lng], { icon: houseIcon }).addTo(map);
-
-                m.bindPopup("Household Number : " + row.household_number);
-
+                // m.bindPopup("Household Number : " + row.household_number);
                 // Click marker => show alert (and popup)
-                m.on('click', function () {
-                    // map.fitBounds(m.getBounds ? m.getBounds() : L.latLngBounds([m.getLatLng()]));
-                    
-                });
-                    })
-                }
+                    m.on('click', function () {
+                        fncExecute(`inputConfig.php?fetchHousholdInfo=true&HouseHoldId=${row.houshold_id}`,null,function(response2){
+                            var res2 = JSON.parse(response2).data;
+                            var tableList = "";
+
+                            $(".leaflet-modal").css("display","block");
+                            map.fitBounds(m.getBounds ? m.getBounds() : L.latLngBounds([m.getLatLng()]));
+                            
+                            res2.HouseHoldMemberList.sort((a, b) => a.family_order - b.family_order);
+                            // Highlight clicked marker
+                            if (window.__lastHouseholdMarker) {
+                                try {
+                                    window.__lastHouseholdMarker.setOpacity(1);
+                                } catch (e) {}
+                            }
+                            window.__lastHouseholdMarker = m;
+                            m.setOpacity(0.7);
+
+                            res2.HouseHoldMemberList.forEach(row2 => {
+                                // Append records (do not overwrite)
+                                const label = row2.family_order == 1
+                                    ? "Father Name :"
+                                    : row2.family_order == 2
+                                        ? "Mother Name :"
+                                        : "";
+
+                                tableList += `
+                                    <tr>
+                                        <td><b>${label}</b> ${row2.full_name}</td>
+                                    </tr>
+                                `;
+                            });
+                          
+                            document.getElementById("sidebar").innerHTML = `
+                                <h4>Household Number : </br><u>${res2.household_number}</u></h4>
+                                <h6>Purok/Sitio: ${res2.purok_sitio_name}</h6>
+                                <table class="table table-sm">
+                                    ${tableList}
+                                </table>
+                            `;
+                        },"GET")
+                    });
+                })
+            }
 
     },"GET");
 
 }
+
+$("#closeModal").click(function (){
+    $(".leaflet-modal").css("display","none");
+
+    // Restore map view
+      var combinedBounds = L.latLngBounds([]);
+    mainBoundaryLayers.forEach(layer => combinedBounds.extend(layer.getBounds()));
+    map.fitBounds(combinedBounds);
+
+    // Un-highlight marker
+    if (window.__lastHouseholdMarker) {
+        try {
+            window.__lastHouseholdMarker.setOpacity(1);
+        } catch (e) {}
+    }
+    window.__lastHouseholdMarker = null;
+})
+
+
+

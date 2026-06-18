@@ -35,6 +35,10 @@ function setDrawControl() {
             circle: false,
             marker: false,
         },
+        edit: {
+        featureGroup: drawnItems, // ✅ required for edit/delete
+        remove: true
+    }
      
     });
 

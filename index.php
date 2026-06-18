@@ -26,8 +26,6 @@
                     <div class="d-flex justify-content-center">
                         <div class="col-12 col-md-6 col-lg-4">
 
-
-
                             <div class="card shadow-lg">
                                 <div class="card-body p-4">
                                     <div class="text-center mb-3">

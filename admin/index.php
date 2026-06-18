@@ -9,12 +9,44 @@ $_SESSION['Active_Navigate'] = 'Dashboard';
 include_once './includes/header.php';
 include_once './includes/navbar.php';
 ?>
+
+<style>
+  .leaflet-modal {
+    /* hidden by default */
+    display: none;
+    position: absolute;
+    top: 230px;
+    left: 25px;
+    right: auto;
+    width: 350px;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    /* above map tiles */
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  .leaflet-modal-content #closeModal {
+    float: right;
+    cursor: pointer;
+    font-weight: bold;
+  }
+</style>
 <div class="container-fluid pt-2">
   <div class="row">
     <div class="col-12">
       <div class="row gap-lg-0 gap-3">
         <div class="col-lg-7 col-12 ">
+
           <div id="map" style="height: 500px;"></div>
+          <div id="mapModal" class="leaflet-modal">
+            <div class="leaflet-modal-content">
+              <span id="closeModal">&times;</span>
+              <div id="sidebar"></div>
+            </div>
+          </div>
         </div>
         <div class="col-lg-5 col-12">
           <div class="container-fluid ">
@@ -106,8 +138,7 @@ include_once './includes/navbar.php';
           </div>
         </div>
       </div>
-
-      <div class="row gap-lg-0 gap-5 pt-md-5 pt-1 ">
+      <!-- <div class="row gap-lg-0 gap-5 pt-md-5 pt-1 d-none">
         <div class="col-md-6  shadow-lg ">
           <div class=" card h-100 ">
             <h5 class=" card-header">TOTAL NUMBER OF PWD's</h5>
@@ -117,20 +148,16 @@ include_once './includes/navbar.php';
             </div>
           </div>
         </div>
-
         <div class="col-md-6 shadow-lg ">
           <div class="card h-100">
             <h5 class="card-header">COUNT NUMBER OF AGE CATEGORIES</h5>
             <div class="card-body">
               <div id="chartAgeCat">
               </div>
-
             </div>
-
           </div>
         </div>
-
-      </div>
+      </div> -->
 
 
     </div>
