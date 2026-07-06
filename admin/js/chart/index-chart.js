@@ -1,47 +1,72 @@
-function chartPwdCat(){
+function chartPwdCat() {
+  fncExecute("inputConfig.php?getPwdCategory=true", null, function (response, textStatus, jqXHR) {
+    var response = JSON.parse(response);
+    if (response.status == 200) {
+      var result = response.data;
 
-  
-var options = {
-  series: [44, 55, 13, 43, 22],
-  chart: {
-    // make width/height dynamic based on the #chart container
-    width: '100%',
-    height: 300,
-    type: 'pie',
-  },
-  labels: [
-    'N/A', 'Psychosocial Disability', 'Chronic Illness', 'Learning Disability', 'Visual Disability','Orthopedic / Physical Disability','Mental Disability / Intellectual Disability',
-    'Hearing Disability (Deaf / Hard of Hearing)','Speech and Language Impairment','Cancer and Rare Diseases','Others'
+      // Map counts into series aligned with your fixed labels
+      var categories = [
+        'N/A', 'Psychosocial Disability', 'Chronic Illness', 'Learning Disability',
+        'Visual Disability', 'Orthopedic / Physical Disability',
+        'Mental Disability / Intellectual Disability',
+        'Hearing Disability (Deaf / Hard of Hearing)',
+        'Speech and Language Impairment',
+        'Cancer and Rare Diseases',
+        'Others'
+      ];
+          // Define fixed colors per category
+      var categoryColors = [
+        '#368bf3', // N/A
+        '#ff6384', // Psychosocial Disability
+        '#36a2eb', // Chronic Illness
+        '#ffcd56', // Learning Disability
+        '#4bc0c0', // Visual Disability
+        '#9966ff', // Orthopedic / Physical Disability
+        '#c9cbcf', // Mental Disability / Intellectual Disability
+        '#ff9f40', // Hearing Disability
+        '#00a65a', // Speech and Language Impairment
+        '#e83e8c', // Cancer and Rare Diseases
+        '#6c757d'  // Others
+      ];
 
-  ],
-  legend: {
-    position: 'right',
-  },
+      var seriesData = categories.map(cat => {
+        var match = result.find(r => r.type_of_disability === cat);
+        return match ? parseInt(match.total_count, 10) : 0;
+      });
 
-  responsive: [
-    {
-      breakpoint: 480,
-      options: {
+     var options = {
+        series: seriesData,
         chart: {
-          width: 200,
+          width: '100%',
+          height: 300,
+          type: 'pie',
         },
+        labels: categories,
+        colors: categoryColors,
         legend: {
-          position: 'bottom',
+          position: 'right',
         },
-      },
-    },
-  ],
+        responsive: [
+          {
+            breakpoint: 480,
+            options: {
+              chart: { width: 200 },
+              legend: { position: 'bottom' },
+            },
+          },
+        ],
+      };
+
+      var chart = new ApexCharts(document.querySelector('#chart'), options);
+      chart.render();
+    }
+  }, "GET");
 }
 
-var chart = new ApexCharts(document.querySelector('#chart'), options)
-chart.render()
-
-}
 
 
 
 function chartAgeCat (){
-
 
   var options = {
   series: [

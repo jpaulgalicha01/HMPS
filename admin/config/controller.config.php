@@ -865,7 +865,6 @@ class controller extends db
         return $HouseHoldList;
     }
 
-
     protected function count_population()
     {
         $stmt = $this->PlsConnect()->prepare("SELECT * FROM individual_records_list");
@@ -879,8 +878,6 @@ class controller extends db
         $stmt->execute();
         return $stmt;
     }
-
-
     protected function fetching_household_coords()
     {
 
@@ -936,6 +933,37 @@ class controller extends db
         $stmt->execute();
         $rows = $stmt->fetchAll();
         return $rows;
+    }
+
+
+
+    protected function get_pwd_category()
+    {
+        try {
+            $stmt = $this->PlsConnect()->prepare("
+            WITH categories AS (
+                SELECT 'N/A' AS type_of_disability UNION ALL
+                SELECT 'Psychosocial Disability' UNION ALL
+                SELECT 'Chronic Illness' UNION ALL
+                SELECT 'Learning Disability' UNION ALL
+                SELECT 'Visual Disability' UNION ALL
+                SELECT 'Orthopedic / Physical Disability' UNION ALL
+                SELECT 'Mental Disability / Intellectual Disability' UNION ALL
+                SELECT 'Hearing Disability (Deaf / Hard of Hearing)' UNION ALL
+                SELECT 'Speech and Language Impairment' UNION ALL
+                SELECT 'Cancer and Rare Diseases' UNION ALL
+                SELECT 'Others'
+            )
+            SELECT c.type_of_disability,
+                  (SELECT COUNT(type_of_disability) from individual_records_list WHERE type_of_disability = c.type_of_disability ) AS total_count
+            FROM categories c
+     
+        ");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $error) {
+            return $error->getMessage();
+        }
     }
 
     /// Fetching Process

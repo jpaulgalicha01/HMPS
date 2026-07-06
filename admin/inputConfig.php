@@ -223,6 +223,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else if (isset($_GET["fetchingHouseholdCoords"])) {
         $fetch = new fetch();
         $fetch->fetchingHouseholdCoords();
+    } else if (isset($_GET["getPwdCategory"])) {
+        $fetch = new fetch();
+        $fetch->getPwdCategory();
     } else if (isset($_GET["sendingSMS"])) {
         $recipients = "09948487917";
         $message = "Hello, this is a test message from the SMS Gateway API.";
