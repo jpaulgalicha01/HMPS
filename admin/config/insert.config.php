@@ -191,4 +191,31 @@ class insert extends controller
         echo json_encode($response);
         return false;
     }
+
+
+    public function uploadCSV()
+    {
+        $stmt = $this->upload_csv();
+        if ($stmt) {
+            if (isset($stmt['status']) && $stmt['status'] == 200) {
+                $response = [
+                    'status' => 200,
+                    'message' => $stmt['message'],
+                ];
+            } else {
+                $response = [
+                    'status' => $stmt['status'],
+                    'message' => $stmt['message'],
+                    'data' => $stmt['data'],
+                ];
+            }
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an encountered error while uploading CSV.',
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
 }

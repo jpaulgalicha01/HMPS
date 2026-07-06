@@ -9,13 +9,25 @@ $_SESSION['Active_Navigate'] = 'Individual Records of Barangay Inhabitants';
 include_once './includes/header.php';
 include_once './includes/navbar.php';
 ?>
+<link href="../css/uploading-files.css" rel="stylesheet" />
+
 
 <div class="container-fluid pt-2">
     <div class="row gap-lg-0 gap-3">
         <div class="col-lg-6 col-12 order-lg-1 order-2">
             <div class="card">
-                <h5 class="card-header">Personal Information</h5>
+                <h5 class="card-header d-flex justify-content-between align-items-center">Personal Information
+                    <div class="">
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            <i class="far fa-file"></i> Upload CSV
+                        </button>
+
+                    </div>
+                </h5>
                 <div class="card-body">
+                    <!-- Button trigger modal -->
+
+
                     <form id="frmSubmitPersonalInfo">
                         <input id="person_unique_id" name="person_unique_id" type="hidden" />
                         <div class="mb-3">
@@ -84,7 +96,7 @@ include_once './includes/navbar.php';
                                     </select>
                                 </div>
                                 <div class="flex-fill px-0">
-                                    <label for="religion" class="form-label">Religion <i>(If not applicable put N/A)</i><span class="text-danger">*</span></label>
+                                    <label for="religion" class="form-label">Religion <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control text-uppercase" id="religion" name="religion" placeholder="Enter Religion" required>
                                 </div>
                             </div>
@@ -92,11 +104,11 @@ include_once './includes/navbar.php';
                         <div class="mb-3">
                             <div class="d-lg-flex d-grid  gap-1">
                                 <div class="flex-fill px-0">
-                                    <label for="residential_address" class="form-label">Residential Address <i>(If not applicable put N/A)</i><span class="text-danger">*</span></label>
+                                    <label for="residential_address" class="form-label">Residential Address <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control text-uppercase" id="residential_address" name="residential_address" placeholder="Enter Residential Address" required>
                                 </div>
                                 <div class="flex-fill px-0">
-                                    <label for="citizenship" class="form-label">Citizenship <i>(If not applicable put N/A)</i><span class="text-danger">*</span></label>
+                                    <label for="citizenship" class="form-label">Citizenship <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control text-uppercase" id="citizenship" name="citizenship" placeholder="Enter Citizenship" required>
                                 </div>
                             </div>
@@ -186,5 +198,31 @@ include_once './includes/navbar.php';
             </div>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal " id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class=" modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Upload File(CSV)</h1>
+                </div>
+                <!-- <form id="frmUploadCSV" enctype="multipart/form-data"> -->
+                <div class="modal-body">
+                    <div class="d-flex justify-content-center">
+                        <?php
+                        include_once '../tools/uploading-files.php';
+                        ?>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="btnUploadFile"><i class="fas fa-save"></i> Upload</button>
+                </div>
+                <!-- </form> -->
+
+            </div>
+        </div>
+    </div>
     <script src="js/family-list.js" defer></script>
+    <script src="../js/uploading-files.js" defer></script>
     <?php include_once './includes/footer.php'; ?>

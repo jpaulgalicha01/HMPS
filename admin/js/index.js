@@ -5,17 +5,16 @@ var removeBackGround = LeafLetRemoveBackGround();
 
 var toolTip = "";
 var mainBoundaryLayers = [];
+window.loadmarker = {};
 
-
-$(document).ready(function(){
+$(document).ready( function(){
     loadPolygons();
-    LoadCategoryListPolygon();
-    // chartAgeCat();
-    // chartPwdCat();
+    chartAgeCat();
+    chartPwdCat();
 })
 
 // Main polygon for the area setup
-function loadPolygons() {
+async function loadPolygons() {
     fncExecute("inputConfig.php?fetch_polygons=true", null, function (response) {
         var data = JSON.parse(response);
         data.forEach(function (poly) {
@@ -26,17 +25,18 @@ function loadPolygons() {
             var mask = L.polygon([removeBackGround].concat([poly.coordinates]), {
                 stroke: false,
                 fillColor: "#000000",
-                fillOpacity: .9
+                fillOpacity: .5
             }).addTo(map);
             map.fitBounds(mainLayer.getBounds());
-            addDummyMarkers(); // e.g. 30 random house markers
+            markers(); // e.g. 30 random house markers
+            LoadCategoryListPolygon(poly.id);
 
         });
     }, "GET");
 }
 
-function LoadCategoryListPolygon() {
-    fncExecute(`inputConfig.php?getAreaSetupList=true&mainAreaID=2`, null, function (response) {
+function LoadCategoryListPolygon(mainLayerID) {
+    fncExecute(`inputConfig.php?getAreaSetupList=true&mainAreaID=${mainLayerID}`, null, function (response) {
         var res = JSON.parse(response);
         if (res.status == 200) {
             drawnItems.clearLayers();
@@ -80,22 +80,8 @@ var houseIcon = L.icon({
     popupAnchor: [0, -24]
 });
 
-// Utility: generate random lat/lng inside polygon bounds
-function getRandomPointInBounds(bounds) {
-    var lat = bounds.getSouth() + Math.random() * (bounds.getNorth() - bounds.getSouth());
-    var lng = bounds.getWest() + Math.random() * (bounds.getEast() - bounds.getWest());
-    return L.latLng(lat, lng);
-}
 
-function addDummyMarkers() {
-
-    // Keep track of the map view so we can restore it when closing the modal
-    // if (!window.__householdMapView) {
-    //     window.__householdMapView = {
-    //         center: (map && map.getCenter) ? map.getCenter() : null,
-    //         zoom: (map && map.getZoom) ? map.getZoom() : null
-    //     };
-    // }
+function markers() {
 
     fncExecute("inputConfig.php?fetchingHouseholdCoords=true",null,function(response){
             var res = JSON.parse(response);
@@ -106,49 +92,9 @@ function addDummyMarkers() {
                 var lat = parseFloat(parts[0]);
                 var lng = parseFloat(parts[1]);
                 var m = L.marker([lat, lng], { icon: houseIcon }).addTo(map);
-                // m.bindPopup("Household Number : " + row.household_number);
-                // Click marker => show alert (and popup)
+                    window.loadmarker[row.houshold_id] = m; // Store marker in global object
                     m.on('click', function () {
-                        fncExecute(`inputConfig.php?fetchHousholdInfo=true&HouseHoldId=${row.houshold_id}`,null,function(response2){
-                            var res2 = JSON.parse(response2).data;
-                            var tableList = "";
-
-                            $(".leaflet-modal").css("display","block");
-                            map.fitBounds(m.getBounds ? m.getBounds() : L.latLngBounds([m.getLatLng()]));
-                            
-                            res2.HouseHoldMemberList.sort((a, b) => a.family_order - b.family_order);
-                            // Highlight clicked marker
-                            if (window.__lastHouseholdMarker) {
-                                try {
-                                    window.__lastHouseholdMarker.setOpacity(1);
-                                } catch (e) {}
-                            }
-                            window.__lastHouseholdMarker = m;
-                            m.setOpacity(0.7);
-
-                            res2.HouseHoldMemberList.forEach(row2 => {
-                                // Append records (do not overwrite)
-                                const label = row2.family_order == 1
-                                    ? "Father Name :"
-                                    : row2.family_order == 2
-                                        ? "Mother Name :"
-                                        : "";
-
-                                tableList += `
-                                    <tr>
-                                        <td><b>${label}</b> ${row2.full_name}</td>
-                                    </tr>
-                                `;
-                            });
-                          
-                            document.getElementById("sidebar").innerHTML = `
-                                <h4>Household Number : </br><u>${res2.household_number}</u></h4>
-                                <h6>Purok/Sitio: ${res2.purok_sitio_name}</h6>
-                                <table class="table table-sm">
-                                    ${tableList}
-                                </table>
-                            `;
-                        },"GET")
+                        houseHoldInfo(row.houshold_id, m);
                     });
                 })
             }
@@ -161,9 +107,9 @@ $("#closeModal").click(function (){
     $(".leaflet-modal").css("display","none");
 
     // Restore map view
-      var combinedBounds = L.latLngBounds([]);
-    mainBoundaryLayers.forEach(layer => combinedBounds.extend(layer.getBounds()));
-    map.fitBounds(combinedBounds);
+    //   var combinedBounds = L.latLngBounds([]);
+    // mainBoundaryLayers.forEach(layer => combinedBounds.extend(layer.getBounds()));
+    // map.fitBounds(combinedBounds);
 
     // Un-highlight marker
     if (window.__lastHouseholdMarker) {
@@ -175,4 +121,76 @@ $("#closeModal").click(function (){
 })
 
 
+function houseHoldInfo(householdId, marker = null) {
+ fncExecute(`inputConfig.php?fetchHousholdInfo=true&HouseHoldId=${householdId}`,null,function(response2){
+        var res2 = JSON.parse(response2).data;
+        var tableList = "";
+
+        $(".leaflet-modal").css("display","block");
+        map.fitBounds(marker.getBounds ? marker.getBounds() : L.latLngBounds([marker.getLatLng()]));
+        
+        res2.HouseHoldMemberList.sort((a, b) => a.family_order - b.family_order);
+        // Highlight clicked marker
+        if (window.__lastHouseholdMarker) {
+            try {
+                window.__lastHouseholdMarker.setOpacity(1);
+            } catch (e) {}
+        }
+        window.__lastHouseholdMarker = marker;
+        marker.setOpacity(0.7);
+
+        res2.HouseHoldMemberList.forEach(row2 => {
+            // Append records (do not overwrite)
+            const label = row2.family_order == 1
+                ? "Father Name :"
+                : row2.family_order == 2
+                    ? "Mother Name :"
+                    : "";
+
+            tableList += `
+                <tr>
+                    <td><b>${label}</b> ${row2.full_name}</td>
+                </tr>
+            `;
+        });
+        
+        document.getElementById("sidebar").innerHTML = `
+            <h4>Household Number : </br><u>${res2.household_number}</u></h4>
+            <h6>Purok/Sitio: ${res2.purok_sitio_name}</h6>
+            <table class="table table-sm">
+                ${tableList}
+            </table>
+        `;
+    },"GET")
+
+}
+
+document.addEventListener("click", function(e) {
+    if (e.target.classList.contains("view-btn")) {
+        const householdId = e.target.dataset.id;
+        viewHouseHoldInfo(householdId);
+    }
+});
+
+function viewHouseHoldInfo(householdId) {
+     var marker = window.loadmarker[householdId];
+     if (marker) {
+        houseHoldInfo(householdId, marker);
+    }else {
+        // fallback: load marker if not already created
+        fncExecute(`inputConfig.php?loadMarkers=true&houseHoldId=${householdId}`, null, function(response) {
+            var res = JSON.parse(response);
+            if (res.status == 200) {
+                res.data.forEach(row => {
+                    var parts = row.household_coord.split(",");
+                    var lat = parseFloat(parts[0]);
+                    var lng = parseFloat(parts[1]);
+                    var m = L.marker([lat, lng], { icon: houseIcon }).addTo(map);
+                    window.householdMarkers[householdId] = m;
+                    houseHoldInfo(householdId, m);
+                });
+            }
+        },"GET");
+    }
+}
 

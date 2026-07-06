@@ -1,7 +1,7 @@
 <?php
 include 'config/security.php';
 include '../dbConfig/ClsConnection.php';
-
+include '../sms-gateway-api/sms.php';
 
 spl_autoload_register("Autoload");
 

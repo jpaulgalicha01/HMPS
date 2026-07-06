@@ -7,6 +7,7 @@
   <meta name="description" content="">
   <!-- <title>Mukha Web App - Artist ()</title> -->
   <title>Household Mapping and Profiling - (<?= $_SESSION['title'] ?>) </title>
+  <link rel="icon" type="image/png" href="../assets/img/Logo.png" />
 
   <!-- <link rel="stylesheet" href="./css/custom-css.css"> -->
   <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">

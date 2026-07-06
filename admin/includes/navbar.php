@@ -72,16 +72,30 @@
           </li>
 
 
-          <li class="nav-item">
-            <a class="nav-link" href="#"><i class="fas fa-chart-bar"></i> Reports</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-envelope"></i> Resident Messaging
+            </a>
+            <ul class="dropdown-menu ">
+              <li><a class="dropdown-item <?= $_SESSION['Active_Navigate'] == 'Resident Messaging'
+                                            ? 'active'
+                                            : '' ?>" href="#">Resident Messaging</a></li>
+              <li><a class="dropdown-item <?= $_SESSION['Active_Navigate'] == 'Resident Messaging History'
+                                            ? 'active'
+                                            : '' ?>" href="#">Resident Messaging History</a></li>
+            </ul>
           </li>
+
+          <!-- <li class="nav-item">
+            <a class="nav-link" href="#"><i class="fas fa-chart-bar"></i> Reports</a>
+          </li> -->
 
           <div class="align-items-center d-lg-none d-block">
             <div class="flex-shrink-0 dropdown">
               <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
               </a>
-              <ul class="dropdown-menu dropdown-menu-end text-small shadow" style="">
+              <ul class="dropdown-menu dropdown-menu-end text-small shadow">
                 <li><a class="dropdown-item" href="#">Profile</a></li>
                 <li>
                   <hr class="dropdown-divider">
@@ -97,7 +111,7 @@
           <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
           </a>
-          <ul class="dropdown-menu dropdown-menu-end text-small shadow" style="">
+          <ul class="dropdown-menu dropdown-menu-end text-small shadow">
             <li><a class="dropdown-item" href="#">Profile</a></li>
             <li>
               <hr class="dropdown-divider">

@@ -76,6 +76,7 @@ formdata.append("person_unique_id", person_unique_id);
           ClsAlert({ icon: "success", title: response.message });
           // ✅ safer: reload instead of reinit
           $("#familyTable").DataTable().ajax.reload();
+          $("#frmSubmitPersonalInfo")[0].reset();
         } else {
           ClsAlert({ icon: "error", title: response.message });
         }
@@ -127,3 +128,32 @@ $(document).on("submit","#frmSubmitPersonalInfo",function(e){
 
 
 
+
+$(document).on("click","#btnUploadFile", function(e) {
+      e.preventDefault();
+
+      if(filedData.length === 0) {
+        ClsAlert({ icon: "info", title: "Please select a file to upload." });
+        return;
+      }
+    const formData = new FormData();
+    formData.append("fileInput", filedData[0]); // Assuming only one file is uploaded
+    formData.append("uploadCSV", true);
+    fncExecute("inputConfig.php", formData, function(response) {
+      const res = JSON.parse(response);
+      if (res.status === 200) {
+        ClsAlert({ icon: "success", title: res.message });
+        initializeIndividualRecTable();
+        fileList.innerHTML = "";
+        filedData.length = 0; // Clear the filedData array
+        document.getElementById('fileInput').value = ""; // Reset the file input
+        $("#exampleModal").modal("hide");
+      } else if (res.status === 409) {
+        ClsAlert({ icon: "error", title: res.message });
+        console.log(res.data);
+      } else {
+        ClsAlert({ icon: "error", title: res.message });
+      }
+    
+    }, "POST");
+})

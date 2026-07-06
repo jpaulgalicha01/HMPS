@@ -333,6 +333,54 @@ class controller extends db
         }
     }
 
+
+    protected function upload_csv()
+    {
+        $csvMimes = array('text/x-comma-separated-values', 'text/comma-separated-values', 'application/octet-stream', 'application/vnd.ms-excel', 'application/x-csv', 'text/x-csv', 'text/csv', 'application/csv', 'application/excel', 'application/vnd.msexcel', 'text/plain');
+        $errorImport = [];
+        if (empty($_FILES['fileInput']['name']) || !in_array($_FILES['fileInput']['type'], $csvMimes)) {
+            return ['status' => 500, 'message' => 'Please upload a valid CSV file.'];
+        }
+        if (is_uploaded_file($_FILES['fileInput']['tmp_name'])) {
+            $csvFile = fopen($_FILES['fileInput']['tmp_name'], 'r');
+            fgetcsv($csvFile);
+            while (($line = fgetcsv($csvFile)) !== FALSE) {
+                try {
+                    $this->add_personal_information(
+                        $line[0], // PhilSysID
+                        $line[1], // LastName
+                        $line[2], // FirstName
+                        $line[3], // MiddleName
+                        $line[4], // Suffix
+                        $line[5], // Birdthdate
+                        $line[6], // BirthPlace
+                        $line[7], // Sex
+                        $line[8], // CivilStatus
+                        $line[9], // Religion
+                        $line[10], // ResidentialAddress
+                        $line[11], // Citizenship
+                        $line[12], // Profession
+                        $line[13], // ContactNo
+                        $line[14], // EmailAddress
+                        $line[15], // HighestAttainmentEducation
+                        $line[16], // HighestAttainmentEducationSpecific
+                        $line[17], // TypeOfDisability
+                        $line[18]  // TypeOfDisabilityOthers
+                    );
+                } catch (Exception $e) {
+                    $errorImport[] = [
+                        'line' => $line,
+                        'error' => $e->getMessage()
+                    ];
+                }
+            }
+            fclose($csvFile);
+        }
+        $message = empty($errorImport) ? 'CSV file uploaded successfully.' : 'CSV file uploaded with some errors.';
+        $status = empty($errorImport) ? 200 : 409;
+        return ['status' => $status, 'data' => $errorImport, 'message' => $message];
+    }
+
     /// Inserting Process
 
     /// Fetching Process
@@ -666,6 +714,77 @@ class controller extends db
         return $HousholdList;
     }
 
+    protected function get_houshold_list_with_category($categoryId, $filterType, $keyword)
+    {
+        $whereClause = "WHERE 1 = 1";
+        $params = [];
+
+        if ($categoryId !== "All" && !empty($categoryId)) {
+            $whereClause .= " AND c.category_id = :category_id";
+            $params[":category_id"] = $categoryId;
+        }
+        if ($filterType !== null && $keyword !== '') {
+            if ($filterType == '1') {
+                $whereClause .= " AND hl.household_number LIKE :keyword";
+                $params[":keyword"] = "%{$keyword}%";
+            } else if ($filterType == '2') {
+                $whereClause .= " AND CONCAT(ir.first_name,' ',ir.middle_name,' ',ir.last_name) LIKE :keyword";
+                $params[":keyword"] = "%{$keyword}%";
+            }
+        }
+        $sql = "SELECT DISTINCT
+                    hl.houshold_id,
+                    hl.household_number,
+                    CONCAT(
+                COALESCE(
+                    (SELECT UPPER(
+                        GROUP_CONCAT(
+                            CONCAT(
+                                ir.first_name, ' ', 
+                                ir.middle_name, ' ', 
+                                ir.last_name, 
+                                CASE 
+                                    WHEN ir.suffix IS NOT NULL AND ir.suffix <> '' 
+                                    THEN CONCAT(', ', ir.suffix) 
+                                    ELSE '' 
+                                END
+                            )
+                            SEPARATOR ' AND '
+                        )
+                    )
+                    FROM household_member_list hm
+                    left JOIN individual_records_list ir 
+                        ON hm.person_unique_id = ir.person_unique_id
+                    WHERE hm.household_number = hl.houshold_id 
+                        AND hm.family_order IN (1,2)
+                ), 'No Head')
+                , ' with ',
+                (SELECT COUNT(*) 
+                    FROM household_member_list hm2
+                    WHERE hm2.household_number = hl.houshold_id 
+                    AND hm2.family_order NOT IN (1,2)),
+                ' member(s)'
+                ) AS FamilyMember,
+                cll.category_level_color
+
+                FROM household_list hl
+                left JOIN category_area c on ST_Within( hl.location,c.boundary)
+                left JOIN household_member_list hml on hl.houshold_id = hml.household_number
+                left JOIN individual_records_list ir on hml.person_unique_id = ir.person_unique_id
+                left JOIN category_list_level cll on c.category_level_id = cll.category_level_id
+        ";
+        $sql .= $whereClause;
+        $stmt = $this->PlsConnect()->prepare($sql);
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     protected function load_markers($HouseHoldID)
     {
         if (empty($HouseHoldID) || $HouseHoldID == 0) {
@@ -818,7 +937,6 @@ class controller extends db
         $rows = $stmt->fetchAll();
         return $rows;
     }
-
 
     /// Fetching Process
 
@@ -1293,7 +1411,6 @@ class controller extends db
             }
             // Commit transaction
             $pdo->commit();
-
             return ['status' => 200, 'message' => 'Household updated successfully.'];
         } catch (PDOException $error) {
             // Rollback transaction on error

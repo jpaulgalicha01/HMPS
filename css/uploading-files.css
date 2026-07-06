@@ -1,0 +1,88 @@
+      .upload-box {
+          border: 2px dashed #198754;
+          border-radius: 8px;
+          width: 400px;
+          padding: 40px 20px;
+          text-align: center;
+          background: #fff;
+          cursor: pointer;
+      }
+
+      .upload-box:hover {
+          background: #cdffe8;
+      }
+
+      .upload-icon {
+          font-size: 48px;
+          color: #198754;
+          margin-bottom: 10px;
+      }
+
+      .upload-text {
+          font-size: 16px;
+          margin-bottom: 20px;
+          color: #333;
+      }
+
+      .upload-btn {
+          background: #000;
+          color: #fff;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 4px;
+          cursor: pointer;
+      }
+
+      .upload-btn:hover {
+          background: #333;
+      }
+
+      .upload-info {
+          font-size: 12px;
+          color: #666;
+          margin-top: 15px;
+      }
+
+        input[type="file"] {
+        opacity: 0;          /* invisible */
+        position: absolute;  /* take it out of normal flow */
+        left: 0;
+        top: 0;
+        width: 100%;
+        /* height: 100%; */
+        cursor: pointer;     /* still clickable */
+        }
+
+      .file-list {
+          margin-top: 20px;
+          text-align: left;
+      }
+
+      .file-item {
+          background: #f1f1f1;
+          padding: 8px;
+          margin-bottom: 5px;
+          border-radius: 4px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+      }
+
+      .file-item span {
+          font-size: 14px;
+      }
+
+      .remove-btn {
+          background: #dc3545;
+          color: #fff;
+          border: none;
+          padding: 4px 8px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 12px;
+      }
+
+      .remove-btn:hover {
+          background: #ed828d;
+      }
+ 

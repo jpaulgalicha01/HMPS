@@ -144,7 +144,18 @@ class fetch extends controller
 
     public function getHousholdList()
     {
-        $stmt = $this->get_houshold_list();
+        $stmt = $this->get_houshold_list(null, null, null);
+        $response = [
+            'status' => 200,
+            'data' => $stmt,
+        ];
+        echo json_encode($response);
+        return false;
+    }
+
+    public function getHousholdListWithCategory($categoryId, $filterType, $keyword)
+    {
+        $stmt = $this->get_houshold_list_with_category($categoryId, $filterType, $keyword);
         $response = [
             'status' => 200,
             'data' => $stmt,

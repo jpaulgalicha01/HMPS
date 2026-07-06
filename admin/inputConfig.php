@@ -170,6 +170,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $fetch = new fetch();
         $fetch->fetchingHouseHoldInfo($CategoryID, $CategoryLevelID);
+    } else if (isset($_POST["uploadCSV"])) {
+        // Handle CSV upload logic here
+        $upload = new insert();
+        $upload->uploadCSV();
     } else {
         return http_response_code(404);
     }
@@ -201,6 +205,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else if (isset($_GET["getHousholdList"])) {
         $fetch = new fetch();
         $fetch->getHousholdList();
+    } else if (isset($_GET["getHousholdListWithCategory"])) {
+        $categoryId = secured($_GET["category_id"]);
+        $filterType = secured($_GET["filter_type"]);
+        $keyword = secured($_GET["keyword"]);
+
+        $fetch = new fetch();
+        $fetch->getHousholdListWithCategory($categoryId, $filterType, $keyword);
     } else if (isset($_GET["loadMarkers"])) {
         $HouseHoldID = secured($_GET["houseHoldId"]);
         $fetch = new fetch();
@@ -212,6 +223,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else if (isset($_GET["fetchingHouseholdCoords"])) {
         $fetch = new fetch();
         $fetch->fetchingHouseholdCoords();
+    } else if (isset($_GET["sendingSMS"])) {
+        $recipients = "09948487917";
+        $message = "Hello, this is a test message from the SMS Gateway API.";
+        SendingSMS($recipients, $message);
     } else {
         return http_response_code(404);
     }
