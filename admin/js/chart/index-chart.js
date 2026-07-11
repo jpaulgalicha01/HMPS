@@ -68,65 +68,74 @@ function chartPwdCat() {
 
 function chartAgeCat (){
 
-  var options = {
-  series: [
-    {
-      name: 'TOTAL COUNT',
-      data: [44, 55, 41, 67, 22, 43, 21,],
-    },
-  ],
-  chart: {
-    height: 350,
-    type: 'bar',
-  },
-  plotOptions: {
-    bar: {
-      borderRadius: 10,
-      columnWidth: '50%',
-    },
-  },
-  dataLabels: {
-    enabled: true,
-  },
-  stroke: {
-    width: 0,
-  },
-  grid: {
-    row: {
-      colors: ['#fff', '#f2f2f2'],
-    },
-  },
-  xaxis: {
-    labels: {
-      rotate: -40,
-    },
-    categories: [
-      'Infant / Toddler (0 to 4 years old)',
-      'Child (5 to 9 years old)',
-      'Adolescent (10 to 19 years old)',
-      'Teenager (13 to 19 years old)',
-      'Youth (15 to 30 years old)',
-      'Working-Age / Adult (15 to 64)',
-      'Senior Citizen / Elderly (60 years old and above)',
-    ],
-    tickPlacement: 'on',
-  },
- 
-  fill: {
-    type: 'gradient',
-    gradient: {
-      shade: 'light',
-      type: 'horizontal',
-      shadeIntensity: 0.25,
-      gradientToColors: undefined,
-      inverseColors: true,
-      opacityFrom: 0.85,
-      opacityTo: 0.85,
-      stops: [50, 0, 100],
-    },
-  },
-}
 
-var chart = new ApexCharts(document.querySelector('#chartAgeCat'), options)
-chart.render()
+  fncExecute("inputConfig.php?getAgeCategory=true",null,function(response, textStatus, jqXHR){
+      var res = JSON.parse(response).data;
+      var response = JSON.parse(response);
+      if (response.status == 200) {
+        var result = response.data;
+            var counts = result.map(r => parseInt(r.total_count, 10));
+            var categories = result.map(r => r.age_category);
+
+          var options = {
+            series: [
+              {
+              name: 'TOTAL COUNT',
+              data: counts,
+              },
+            ],
+            chart: {
+              height: 300,
+              type: 'bar',
+            },
+            plotOptions: {
+                bar: {
+                borderRadius: 10,
+                columnWidth: '50%',
+              },
+            },
+            dataLabels: {
+            
+            },
+            stroke: {
+            
+            },
+            grid: {
+              row: {
+                colors: ['#fff', '#f2f2f2'],
+              },
+            },
+            xaxis: {
+              labels: {
+                rotate: -30,
+              },
+              categories: categories,
+              tickPlacement: 'on',
+              style: {
+                fontSize: '10px', // font size for x-axis labels
+              },
+            },
+            fill: {
+              type: 'gradient',
+              gradient: {
+                shade: 'light',
+                type: 'horizontal',
+                shadeIntensity: 0.25,
+                gradientToColors: undefined,
+                inverseColors: true,
+                opacityFrom: 0.85,
+                opacityTo: 0.85,
+                stops: [50, 0, 100],
+              },
+            },
+          }
+
+          var chart = new ApexCharts(document.querySelector('#chartAgeCat'), options)
+          chart.render()
+        
+      }
+
+  },"GET")
+
+ 
 }

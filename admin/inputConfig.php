@@ -174,6 +174,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Handle CSV upload logic here
         $upload = new insert();
         $upload->uploadCSV();
+    } else if (isset($_POST["submitTemplateAlert"])) {
+        $template_id = secured(isset($_POST["template_id "]));
+        $TemplateName = secured(isset($_POST["TemplateName"]));
+        $categoryID = secured(isset($_POST["categoryID"]));
+        $CategoryLevel = secured(isset($_POST["CategoryLevel"]));
+        $TemplateMessage = secured(isset($_POST["TemplateMessage"]));
+
+
+        if (empty($template_id)) {
+            $insert = new insert();
+            $insert->insertTemplateNotif($TemplateName,$categoryID,$CategoryLevel,$TemplateMessage);
+        }
     } else {
         return http_response_code(404);
     }
@@ -226,6 +238,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else if (isset($_GET["getPwdCategory"])) {
         $fetch = new fetch();
         $fetch->getPwdCategory();
+    } else if (isset($_GET["getAgeCategory"])) {
+        $fetch = new fetch();
+        $fetch->getAgeCat();
     } else if (isset($_GET["sendingSMS"])) {
         $recipients = "09948487917";
         $message = "Hello, this is a test message from the SMS Gateway API.";

@@ -1,7 +1,7 @@
 <div class="bg-primary p-2 text-center text-white" style="max-height:90px; min-height:5px; height:auto;">
   <p class="fs-3 fw-bold">Household Mapping and Profiling System</p>
 </div>
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
+<nav class="navbar navbar-expand-lg bg-body-tertiary shadow mb-3 bg-body-tertiary rounded">
   <div class="container-fluid">
     <div class="mx-auto" style="width: 50px; height: 50px; border-radius: 18px;">
       <a class="navbar-brand text-center " href="#">
@@ -71,19 +71,8 @@
             </ul>
           </li>
 
-
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fas fa-envelope"></i> Resident Messaging
-            </a>
-            <ul class="dropdown-menu ">
-              <li><a class="dropdown-item <?= $_SESSION['Active_Navigate'] == 'Resident Messaging'
-                                            ? 'active'
-                                            : '' ?>" href="#">Resident Messaging</a></li>
-              <li><a class="dropdown-item <?= $_SESSION['Active_Navigate'] == 'Resident Messaging History'
-                                            ? 'active'
-                                            : '' ?>" href="#">Resident Messaging History</a></li>
-            </ul>
+          <li class="nav-item">
+            <a class="nav-link <?= $_SESSION['Active_Navigate'] == 'Resident Messaging' ? 'active' : '' ?>" aria-current="page" href="resident-messaging.php"><i class="fas fa-envelope"></i> Resident Messaging</a>
           </li>
 
           <!-- <li class="nav-item">

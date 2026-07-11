@@ -360,6 +360,7 @@ $("#categoryID").change(function(){
                 option.value = level.category_level_id;
                 option.textContent = level.category_level_name;
                 option.style.backgroundColor = level.category_level_color;
+                option.style.color = getContrastColor(level.category_level_color);
                 drpDown.appendChild(option);
             });
         }
