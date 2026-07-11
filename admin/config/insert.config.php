@@ -218,4 +218,29 @@ class insert extends controller
         echo json_encode($response);
         return false;
     }
+
+    public function insertTemplateNotif($TemplateName, $categoryID, $CategoryLevel, $TemplateMessage)
+    {
+        $stmt =  $this->insert_template_notif($TemplateName, $categoryID, $CategoryLevel, $TemplateMessage);
+        if ($stmt) {
+            if (isset($stmt['status']) && $stmt['status'] == 200) {
+                $response = [
+                    'status' => 200,
+                    'message' => $stmt['message'],
+                ];
+            } else {
+                $response = [
+                    'status' => 409,
+                    'message' => $stmt['message'],
+                ];
+            }
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an encountered error.',
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
 }

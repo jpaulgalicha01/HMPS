@@ -381,6 +381,43 @@ class controller extends db
         return ['status' => $status, 'data' => $errorImport, 'message' => $message];
     }
 
+    protected function insert_template_notif($TemplateName, $categoryID, $CategoryLevel, $TemplateMessage)
+    {
+        try {
+            $checking = $this->PlsConnect()->prepare("SELECT 1 FROM notification_template WHERE TemplateName = :TemplateName AND categoryID = :categoryID AND CategoryLevel = :CategoryLevel AND TemplateMessage = :TemplateMessage LIMIT 1");
+            $checking->execute();
+            if ($checking->fetch()) {
+                return [
+                    'message' => 'Message template is already added.'
+                ];
+            }
+
+            $insert = $this->PlsConnect()->prepare("INSERT INTO `notification_template`
+            (`TemplateName`, `categoryID`, `CategoryLevel`, `TemplateMessage`) 
+                VALUES (:TemplateName,:categoryID,:CategoryLevel,:TemplateMessage)
+        ");
+            $insert->bindParam(":TemplateName", $TemplateName);
+            $insert->bindParam(":categoryID", $categoryID);
+            $insert->bindParam(":CategoryLevel", $CategoryLevel);
+            $insert->bindParam(":TemplateMessage", $TemplateMessage);
+            if (!$insert->execute())
+                return [
+                    'status' => 500,
+                    'message' => 'Failed to save Message Template.'
+                ];
+
+            return [
+                'status' => 200,
+                'message' => 'Message Template saved successfully.'
+            ];
+        } catch (PDOException $error) {
+            return [
+                'status' => 500,
+                'message' => $error->getMessage(),
+            ];
+        }
+    }
+
     /// Inserting Process
 
     /// Fetching Process
@@ -963,6 +1000,76 @@ class controller extends db
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $error) {
             return $error->getMessage();
+        }
+    }
+
+    protected function get_age_cat()
+    {
+        try {
+            $query = "WITH categories AS (
+                        SELECT 0 AS min_age UNION ALL
+                        SELECT 2 UNION ALL
+                        SELECT 4 UNION ALL
+                        SELECT 6 UNION ALL
+                        SELECT 12 UNION ALL
+                        SELECT 20 UNION ALL
+                        SELECT 40 UNION ALL
+                        SELECT 60 
+                    ),
+                    bracket_ranges AS (
+                        SELECT 
+                            min_age,
+                            -- Dynamically gets the next bracket's age as the max limit
+                            LEAD(min_age) OVER (ORDER BY min_age) AS max_age
+                        FROM categories
+                    )
+                    SELECT 
+                        b.min_age AS age_category,
+                        COUNT(i.birdthdate) AS total_count
+                    FROM bracket_ranges b
+                    LEFT JOIN individual_records_list i 
+                        -- Calculates age and ensures it falls strictly within the min and max limits
+                        ON TIMESTAMPDIFF(YEAR, i.birdthdate, CURDATE()) >= b.min_age
+                        AND (b.max_age IS NULL OR TIMESTAMPDIFF(YEAR, i.birdthdate, CURDATE()) < b.max_age)
+                    GROUP BY b.min_age
+                    ORDER BY b.min_age;
+                    ";
+            $sql = $this->PlsConnect()->prepare($query);
+            $sql->execute();
+
+            $rows = $sql->fetchAll();
+            $HousholdList = array_map(function ($row) {
+                if ($row["age_category"] == "0") {
+                    $row["age_category"] = "Infants: 0–1 year";
+                }
+                if ($row["age_category"] == "2") {
+                    $row["age_category"] = "Toddlers: 2–3 years";
+                }
+                if ($row["age_category"] == "4") {
+                    $row["age_category"] = "Preschoolers: 4–5 years";
+                }
+                if ($row["age_category"] == "6") {
+                    $row["age_category"] = "Middle Childhood: 6–11 years";
+                }
+                if ($row["age_category"] == "12") {
+                    $row["age_category"] = "Adolescents / Teenagers: 12–19 years";
+                }
+                if ($row["age_category"] == "20") {
+                    $row["age_category"] = "Young Adults: 20–39 years";
+                }
+                if ($row["age_category"] == "40") {
+                    $row["age_category"] = "Middle-Aged Adults: 40–59 years";
+                }
+                if ($row["age_category"] == "60") {
+                    $row["age_category"] = "Seniors / Older Adults: 60+ years";
+                }
+                $row["total_count"] =  $row["total_count"];
+                return $row;
+            }, $rows);
+
+            return $HousholdList;
+        } catch (PDOException $err) {
+            return  $err->getMessage();
         }
     }
 

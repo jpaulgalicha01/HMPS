@@ -226,4 +226,15 @@ class fetch extends controller
         echo json_encode($response);
         return false;
     }
+
+    public function getAgeCat()
+    {
+        $stmt = $this->get_age_cat();
+        $response = [
+            'status' => 200,
+            'data' => $stmt,
+        ];
+        echo json_encode($response);
+        return false;
+    }
 }

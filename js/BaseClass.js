@@ -190,3 +190,15 @@ function escapeHtml(str) {
     .replaceAll('"', '"')
     .replaceAll("'", '&#039;');
 }
+
+function getContrastColor(hex) {
+    // Remove leading #
+    hex = hex.replace('#', '');
+    // Convert to RGB
+    var r = parseInt(hex.substr(0,2),16);
+    var g = parseInt(hex.substr(2,2),16);
+    var b = parseInt(hex.substr(4,2),16);
+    // Calculate brightness (YIQ formula)
+    var yiq = ((r*299)+(g*587)+(b*114))/1000;
+    return (yiq >= 128) ? '#000' : '#fff'; // black if light bg, white if dark bg
+}
