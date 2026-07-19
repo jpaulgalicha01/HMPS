@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 14, 2026 at 03:53 PM
+-- Generation Time: Jul 19, 2026 at 11:58 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -66,6 +66,25 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `accounts`
+--
+
+CREATE TABLE `accounts` (
+  `userID` int(11) NOT NULL,
+  `uname` varchar(150) NOT NULL,
+  `pass` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `accounts`
+--
+
+INSERT INTO `accounts` (`userID`, `uname`, `pass`) VALUES
+(1, 'administrator', '200ceb26807d6bf99fd6f4f0d1ca54d4');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `area_polygon`
 --
 
@@ -73,13 +92,6 @@ CREATE TABLE `area_polygon` (
   `polygon_id` int(11) NOT NULL,
   `coordinates` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`coordinates`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `area_polygon`
---
-
-INSERT INTO `area_polygon` (`polygon_id`, `coordinates`) VALUES
-(2, '[[10.009247545817368,122.80108315640467],[10.009247545817368,122.80108315640467],[10.008296848633748,122.80170829091483],[10.008296848633748,122.80170829091483],[10.004863514544876,122.7997713617241],[10.005193395906517,122.79995618060528],[10.004863514544876,122.7997713617241],[10.001892536496513,122.79896378452428],[10.001892536496513,122.79896378452428],[10.000646038059584,122.79874109712365],[10.000646038059584,122.79874109712365],[10.000031988902549,122.80189637738351],[10.000031988902549,122.80189637738351],[9.999936916611919,122.80192052421009],[9.999936916611919,122.80192052421009],[9.99616833424546,122.80439691542416],[9.99616833424546,122.80439691542416],[9.998129897218465,122.80725276576399],[9.998129897218465,122.80725276576399],[9.99490004575485,122.8089349946819],[9.99490004575485,122.8089349946819],[9.994870995432546,122.80908524160282],[9.994870995432546,122.80908524160282],[10.000335536932644,122.810202920178],[10.000335536932644,122.810202920178],[10.000528322145358,122.81007682008367],[10.000528322145358,122.81007682008367],[10.00278436724901,122.81180222376668],[10.012402429394635,122.81393759373121],[10.012402429394635,122.81393759373121],[10.010882614182973,122.80673682794225],[10.010882614182973,122.80673682794225],[10.009842113786009,122.80201271804087],[10.009842113786009,122.80201271804087],[10.009242597695884,122.80107825655935]]');
 
 -- --------------------------------------------------------
 
@@ -197,6 +209,35 @@ CREATE TABLE `individual_records_list` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `messaging_info`
+--
+
+CREATE TABLE `messaging_info` (
+  `messaging_id` int(11) NOT NULL,
+  `date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `categories` varchar(150) NOT NULL,
+  `success_count` int(11) NOT NULL,
+  `failed_count` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notification_template`
+--
+
+CREATE TABLE `notification_template` (
+  `template_id` int(11) NOT NULL,
+  `TemplateName` varchar(150) NOT NULL,
+  `categoryID` int(11) NOT NULL,
+  `CategoryLevel` int(11) NOT NULL,
+  `TemplateMessage` text NOT NULL,
+  `DateAdded` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `purok_sitio_list`
 --
 
@@ -208,6 +249,12 @@ CREATE TABLE `purok_sitio_list` (
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `accounts`
+--
+ALTER TABLE `accounts`
+  ADD PRIMARY KEY (`userID`);
 
 --
 -- Indexes for table `area_polygon`
@@ -253,6 +300,18 @@ ALTER TABLE `individual_records_list`
   ADD UNIQUE KEY `preson_id` (`preson_id`);
 
 --
+-- Indexes for table `messaging_info`
+--
+ALTER TABLE `messaging_info`
+  ADD PRIMARY KEY (`messaging_id`);
+
+--
+-- Indexes for table `notification_template`
+--
+ALTER TABLE `notification_template`
+  ADD PRIMARY KEY (`template_id`);
+
+--
 -- Indexes for table `purok_sitio_list`
 --
 ALTER TABLE `purok_sitio_list`
@@ -263,10 +322,16 @@ ALTER TABLE `purok_sitio_list`
 --
 
 --
+-- AUTO_INCREMENT for table `accounts`
+--
+ALTER TABLE `accounts`
+  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `area_polygon`
 --
 ALTER TABLE `area_polygon`
-  MODIFY `polygon_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `polygon_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `category_area`
@@ -297,6 +362,18 @@ ALTER TABLE `household_member_list`
 --
 ALTER TABLE `individual_records_list`
   MODIFY `preson_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `messaging_info`
+--
+ALTER TABLE `messaging_info`
+  MODIFY `messaging_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `notification_template`
+--
+ALTER TABLE `notification_template`
+  MODIFY `template_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `purok_sitio_list`
