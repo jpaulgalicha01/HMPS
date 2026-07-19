@@ -165,12 +165,13 @@ function houseHoldInfo(householdId, marker = null) {
 
 }
 
-document.addEventListener("click", function(e) {
-    if (e.target.classList.contains("view-btn")) {
-        const householdId = e.target.dataset.id;
-        viewHouseHoldInfo(householdId);
-    }
-});
+
+$(document).on("click", "#householdTable .view-btn",function (){
+    var householdId = $(this).attr('data-id');
+    viewHouseHoldInfo(householdId);
+})
+
+
 
 function viewHouseHoldInfo(householdId) {
      var marker = window.loadmarker[householdId];

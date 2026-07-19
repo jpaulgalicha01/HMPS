@@ -7,9 +7,9 @@ function SendingSMS($recipents, $message)
 {
     try {
         $client = new Client();
-        $client->request('POST', 'https://www.traccar.org/sms/', [
+        $client->request('POST', 'http://192.168.1.231:8082/sms/', [
             'headers' => [
-                'Authorization' => 'e_5-3a_3RB-TlPucShIXhL:APA91bHjmCI2BcYvtJSwP7fOKNGj4Yx7H7-cMbaMScs8WVMauJustatzQ0BD6H4nIULkEJibg6XejAjRTt-0Gp_MiqXLVxAyexCCRInVxfFUHsW7nT7EWPA',
+                'Authorization' => '636436a3-7fbe-4fb3-8d07-4292ef392d40',
                 'Content-Type'  => 'application/json'
             ],
             'json' => [
@@ -18,6 +18,6 @@ function SendingSMS($recipents, $message)
             ]
         ]);
     } catch (Throwable $e) {
-        echo "Caught an error or exception: " . $e->getMessage();
+        throw new Exception("Caught an error or exception: " . $e->getMessage());
     }
 }

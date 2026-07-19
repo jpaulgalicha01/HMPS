@@ -1,7 +1,13 @@
 <?php
 include 'includes/autoload.inc.php';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST["save_polygon"])) {
+    if (isset($_POST["loginUser"])) {
+        $Uname = secured($_POST['uname']);
+        $Password = secured($_POST['password']);
+        $fetch = new fetch();
+        $fetch->loginUser($Uname, $Password);
+    } else if (isset($_POST["save_polygon"])) {
         $coordinates = $_POST["coordinates"];
         $insert = new insert();
         $insert->savePolygon($coordinates);
@@ -175,17 +181,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $upload = new insert();
         $upload->uploadCSV();
     } else if (isset($_POST["submitTemplateAlert"])) {
-        $template_id = secured(isset($_POST["template_id "]));
-        $TemplateName = secured(isset($_POST["TemplateName"]));
-        $categoryID = secured(isset($_POST["categoryID"]));
-        $CategoryLevel = secured(isset($_POST["CategoryLevel"]));
-        $TemplateMessage = secured(isset($_POST["TemplateMessage"]));
-
-
+        $template_id = secured($_POST["template_id"]);
+        $TemplateName = ucfirst(secured($_POST["TemplateName"]));
+        $categoryID = secured($_POST["categoryID"]);
+        $CategoryLevel = secured($_POST["CategoryLevel"]);
+        $TemplateMessage = ucfirst(secured($_POST["TemplateMessage"]));
         if (empty($template_id)) {
             $insert = new insert();
-            $insert->insertTemplateNotif($TemplateName,$categoryID,$CategoryLevel,$TemplateMessage);
+            $insert->insertTemplateNotif($TemplateName, $categoryID, $CategoryLevel, $TemplateMessage);
+        } else {
+            $update = new update();
+            $update->updateTemplateNotif($template_id, $TemplateName, $categoryID, $CategoryLevel, $TemplateMessage);
         }
+    } else if (isset($_POST["getTempleInfo"])) {
+        $templateID = secured($_POST["templateID"]);
+        $fetch = new fetch();
+        $fetch->getTempleInfo($templateID);
+    } else if (isset($_POST["SendingNotif"])) {
+        $Categories = secured($_POST["Categories"]);
+        $CategoriesLevelId = $_POST["CategoriesLevelId"] ?? [];
+        $insert = new insert();
+        $insert->sendingNotification($Categories, $CategoriesLevelId);
     } else {
         return http_response_code(404);
     }
@@ -245,6 +261,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $recipients = "09948487917";
         $message = "Hello, this is a test message from the SMS Gateway API.";
         SendingSMS($recipients, $message);
+    } else if (isset($_GET["getAllTemplateMessage"])) {
+        $fetch = new fetch();
+        $fetch->getAllTemplateMessage();
+    } else if (isset($_GET["getAllSmsHistory"])) {
+        $fetch = new fetch();
+        $fetch->getAllSmsHistory();
     } else {
         return http_response_code(404);
     }

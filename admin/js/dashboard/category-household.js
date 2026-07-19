@@ -63,7 +63,7 @@ const initializePropertyTable = () => {
                 title: "Action", data: "houshold_id", className: "dt-body-center dt-head-center", width: "10%",
                 render: function (data, type, row) {
                     if (data == null) return '';
-                    return `<button class="btn btn-success view-btn" data-id="${row.houshold_id}"><i class="fa fa-eye"></i></button>`;
+                    return `<button type="button" class="btn btn-success view-btn" data-id="${row.houshold_id}"><i class="fa fa-eye"></i></button>`;
                 }
             },
         ],

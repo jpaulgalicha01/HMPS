@@ -9,7 +9,7 @@ function ClsAlert(options) {
       timer: 1500
     });
 
-    Toast.fire({
+    return Toast.fire({
       icon: icon,
       title: title
     });

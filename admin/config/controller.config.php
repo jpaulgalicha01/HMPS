@@ -385,6 +385,10 @@ class controller extends db
     {
         try {
             $checking = $this->PlsConnect()->prepare("SELECT 1 FROM notification_template WHERE TemplateName = :TemplateName AND categoryID = :categoryID AND CategoryLevel = :CategoryLevel AND TemplateMessage = :TemplateMessage LIMIT 1");
+            $checking->bindParam(":TemplateName", $TemplateName);
+            $checking->bindParam(":categoryID", $categoryID);
+            $checking->bindParam(":CategoryLevel", $CategoryLevel);
+            $checking->bindParam(":TemplateMessage", $TemplateMessage);
             $checking->execute();
             if ($checking->fetch()) {
                 return [
@@ -392,10 +396,44 @@ class controller extends db
                 ];
             }
 
+            // 2) Check Template Name (only if changed)
+            if (!empty($TemplateName)) {
+                $checkingEmail = $this->PlsConnect()->prepare(
+                    "SELECT 1 FROM notification_template WHERE TemplateName = :TemplateName AND template_id != :template_id LIMIT 1"
+                );
+                $checkingEmail->bindParam(':TemplateName', $TemplateName);
+                $checkingEmail->bindParam(':template_id', $template_id);
+                $checkingEmail->execute();
+
+                if ($checkingEmail->fetch()) {
+                    return [
+                        'status' => 409,
+                        'message' => 'Notification Template Name is already use',
+                    ];
+                }
+            }
+
+            if (!empty($TemplateName)) {
+                $checkingEmail = $this->PlsConnect()->prepare(
+                    "SELECT 1 FROM notification_template WHERE categoryID = :categoryID AND CategoryLevel = :CategoryLevel LIMIT 1"
+                );
+                $checkingEmail->bindParam(':categoryID', $categoryID);
+                $checkingEmail->bindParam(':CategoryLevel', $CategoryLevel);
+                $checkingEmail->execute();
+
+                if ($checkingEmail->fetch()) {
+                    return [
+                        'status' => 409,
+                        'message' => 'Notification Category already assign',
+                    ];
+                }
+            }
+
             $insert = $this->PlsConnect()->prepare("INSERT INTO `notification_template`
-            (`TemplateName`, `categoryID`, `CategoryLevel`, `TemplateMessage`) 
-                VALUES (:TemplateName,:categoryID,:CategoryLevel,:TemplateMessage)
-        ");
+                (TemplateName, categoryID, CategoryLevel, TemplateMessage) 
+                    VALUES (:TemplateName,:categoryID,:CategoryLevel,:TemplateMessage)
+            ");
+
             $insert->bindParam(":TemplateName", $TemplateName);
             $insert->bindParam(":categoryID", $categoryID);
             $insert->bindParam(":CategoryLevel", $CategoryLevel);
@@ -418,9 +456,119 @@ class controller extends db
         }
     }
 
+
+    protected function sending_notification($Categories, $CategoriesLevelId)
+    {
+        $pdo = $this->PlsConnect();
+        $Count_Success = 0;
+        $Count_Failed = 0;
+
+        try {
+            $pdo->beginTransaction();
+
+            $checking_Notif_Exist = $pdo->prepare(
+                "SELECT 1 FROM notification_template WHERE categoryID = :categoryID LIMIT 1"
+            );
+            $checking_Notif_Exist->bindParam(":categoryID", $Categories);
+            $checking_Notif_Exist->execute();
+
+            if (!$checking_Notif_Exist->fetch()) {
+                $pdo->rollBack();
+                return ['message' => 'Category not found.'];
+            }
+            if (empty($categoriesLevelId)) {
+                return ['status' => 409, 'message' => 'Please Select First Category Level.'];
+            }
+
+            // Build placeholders for IN clause
+            $placeholders = implode(',', array_fill(0, count($CategoriesLevelId), '?'));
+            $query = "SELECT DISTINCT
+                        nt.TemplateMessage,
+                        CONCAT(
+                            irl.first_name, ' ', 
+                            irl.middle_name, ' ', 
+                            irl.last_name, 
+                            CASE 
+                            WHEN irl.suffix IS NOT NULL AND irl.suffix <> '' THEN CONCAT(', ', irl.suffix) 
+                            ELSE '' 
+                            END
+                        ) AS full_name,
+                        irl.contact_no
+                  FROM notification_template nt
+                  INNER JOIN category_area ca 
+                      ON nt.categoryID = ca.category_id  
+                     AND nt.CategoryLevel = ca.category_level_id
+                  INNER JOIN household_list hl 
+                      ON ST_Within(hl.location, ca.boundary)
+                  INNER JOIN household_member_list hml 
+                      ON hl.houshold_id = hml.household_number
+                  INNER JOIN individual_records_list irl 
+                      ON hml.person_unique_id = irl.person_unique_id
+                  WHERE nt.CategoryID = ? 
+                    AND nt.CategoryLevel IN ($placeholders)
+                  ORDER BY nt.categoryID ASC";
+
+            $params = array_merge([$Categories], $CategoriesLevelId);
+            $stmt1 = $pdo->prepare($query);
+            $stmt1->execute($params);
+
+            foreach ($stmt1 as $varlist) {
+                try {
+                    $message = "Good day MR/MS. " . $varlist["full_name"] . "\n\n" . $varlist["TemplateMessage"];
+                    SendingSMS($varlist["contact_no"], $message);
+                    $Count_Success++;
+                } catch (Exception $err) {
+                    $Count_Failed++;
+                }
+            }
+
+            $fetchingCategoriesName = $pdo->prepare(
+                "SELECT category_name FROM category_name WHERE category_id = ? LIMIT 1"
+            );
+            $fetchingCategoriesName->execute([$Categories]);
+            $categoryName = $fetchingCategoriesName->fetchColumn();
+
+            if ($categoryName) {
+                $insert = $pdo->prepare(
+                    "INSERT INTO messaging_info (categories, success_count, failed_count) 
+                 VALUES (:categories, :success_count, :failed_count)"
+                );
+                $insert->bindParam(":categories", $categoryName);
+                $insert->bindParam(":success_count", $Count_Success, PDO::PARAM_INT);
+                $insert->bindParam(":failed_count", $Count_Failed, PDO::PARAM_INT);
+                $insert->execute();
+            }
+
+            $pdo->commit();
+            return [
+                'status' => 200,
+                'message' => 'Successfully '
+            ];
+        } catch (PDOException $err) {
+            $pdo->rollBack();
+            return [
+                'status' => 500,
+                'message' => $err->getMessage(),
+            ];
+        }
+    }
+
+
     /// Inserting Process
 
     /// Fetching Process
+
+
+    protected function login_user($Uname, $Password)
+    {
+        $pass = md5($Password);
+        $stmt = $this->PlsConnect()->prepare("SELECT * FROM `accounts` WHERE `uname`=:uname AND `pass`=:pass ");
+        $stmt->bindParam(":uname", $Uname);
+        $stmt->bindParam(":pass", $pass);
+        $stmt->execute();
+        return $stmt;
+    }
+
 
     protected function get_polygon()
     {
@@ -1073,6 +1221,47 @@ class controller extends db
         }
     }
 
+    protected function get_all_template_message()
+    {
+        $stmt = $this->PlsConnect()->prepare("SELECT
+            notif_temp.template_id,
+            CONCAT(UPPER(LEFT(notif_temp.TemplateName, 1)), LOWER(SUBSTRING(notif_temp.TemplateName, 2))) AS TemplateName,
+            IF(
+                CHAR_LENGTH(notif_temp.TemplateMessage) > 50, 
+                CONCAT(UPPER(LEFT(notif_temp.TemplateMessage, 1)), LOWER(SUBSTRING(notif_temp.TemplateMessage, 2, 49)), '...'), 
+                CONCAT(UPPER(LEFT(notif_temp.TemplateMessage, 1)), LOWER(SUBSTRING(notif_temp.TemplateMessage, 2)))
+            ) AS TemplateMessage,
+            CONCAT(UPPER(LEFT(cat_name.category_name, 1)), LOWER(SUBSTRING(cat_name.category_name, 2))) AS category_name,
+            cat_level_list.category_level_name,
+            cat_level_list.category_level_color,
+            DATE_FORMAT(notif_temp.DateAdded, '%M %d, %Y %h:%i:%s %p') AS DateAdded
+            FROM `notification_template` notif_temp
+            inner join category_name cat_name on notif_temp.categoryID = cat_name.category_id
+            inner join category_list_level cat_level_list on notif_temp.CategoryLevel = cat_level_list.category_level_id
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    protected function get_temple_info($templateID)
+    {
+        $fetch = $this->PlsConnect()->prepare("SELECT `template_id`, `TemplateName`, `categoryID`, `CategoryLevel`, `TemplateMessage` FROM `notification_template`  WHERE template_id = :template_id");
+        $fetch->bindParam(":template_id", $templateID);
+        $fetch->execute();
+
+        return [
+            'status' => 200,
+            'data' => $fetch->fetchAll(PDO::FETCH_ASSOC)
+        ];
+    }
+
+    protected function get_all_sms_history()
+    {
+        $stmt = $this->PlsConnect()->prepare("SELECT `messaging_id`, `date`, `categories`, `success_count`, `failed_count` FROM `messaging_info`");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     /// Fetching Process
 
     /// Deleting Process
@@ -1553,5 +1742,62 @@ class controller extends db
             return ['message' => 'Error updating Household: ' . $error->getMessage()];
         }
     }
+
+    protected function update_template_notif($template_id, $TemplateName, $categoryID, $CategoryLevel, $TemplateMessage)
+    {
+        $pdo = $this->PlsConnect();
+        try {
+            // 1) Check if person_unique_id exists
+            $checking_query = $pdo->prepare(
+                "SELECT 1 FROM notification_template WHERE template_id = :template_id LIMIT 1"
+            );
+            $checking_query->bindParam(":template_id", $template_id);
+            $checking_query->execute();
+            if (!$checking_query->fetch()) {
+                return [
+                    'status' => 404,
+                    'message' => 'Notificaiton Template of this data is not found',
+                ];
+            }
+
+            // 2) Check Template Name (only if changed)
+            if (!empty($TemplateName)) {
+                $checkingEmail = $pdo->prepare(
+                    "SELECT 1 FROM notification_template WHERE TemplateName = :TemplateName AND template_id != :template_id LIMIT 1"
+                );
+                $checkingEmail->bindParam(':TemplateName', $TemplateName);
+                $checkingEmail->bindParam(':template_id', $template_id);
+                $checkingEmail->execute();
+
+                if ($checkingEmail->fetch()) {
+                    return [
+                        'status' => 409,
+                        'message' => 'Notification Template Name is already use',
+                    ];
+                }
+            }
+            $pdo->beginTransaction();
+            $update = $pdo->prepare("UPDATE `notification_template` SET 
+                TemplateName= :TemplateName,
+                categoryID= :categoryID,
+                CategoryLevel= :CategoryLevel,
+                TemplateMessage= :TemplateMessage
+                 WHERE template_id = :template_id
+            ");
+            $update->bindParam(":TemplateName", $TemplateName);
+            $update->bindParam(":categoryID", $categoryID);
+            $update->bindParam(":CategoryLevel", $CategoryLevel);
+            $update->bindParam(":TemplateMessage", $TemplateMessage);
+            $update->bindParam(":template_id", $template_id);
+            $update->execute();
+            $pdo->commit();
+            return ['status' => 200, 'message' => 'Notifcation Template updated successfully.'];
+        } catch (PDOException $error) {
+            // Rollback transaction on error
+            $pdo->rollback();
+            return ['message' => 'Error updating Household: ' . $error->getMessage()];
+        }
+    }
+
     /// Updating Process
 }

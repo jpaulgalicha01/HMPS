@@ -192,7 +192,6 @@ include_once './includes/navbar.php';
                 <h5 class="card-header">Individual Records of Barangay Inhabitants</h5>
                 <div class="card-body">
                     <table class="table table-striped table-bordered" id="familyTable">
-                        </tbody>
                     </table>
                 </div>
             </div>

@@ -1,7 +1,31 @@
 <?php
 class fetch extends controller
 {
-
+    public function loginUser($Uname, $Password)
+    {
+        $stmt  = $this->login_user($Uname, $Password);
+        if ($stmt->rowCount() == 1) {
+            $fetch = $stmt->fetch();
+            setcookie("UserID", $fetch['userID'], 2147483647, '/');
+            setcookie("TypeUser", 'administrator', 2147483647, '/');
+            $data = [
+                'status' => 200,
+                'icon' => "success",
+                'redirect' => "admin/index.php"
+            ];
+            echo json_encode($data);
+            return false;
+        } else {
+            // Not Valid Credentials
+            $data = [
+                'status' => 302,
+                'icon' => 'error',
+                'message' => "Username/Password is not valid",
+            ];
+            echo json_encode($data);
+            return false;
+        }
+    }
     public function CountPopulation()
     {
 
@@ -230,6 +254,33 @@ class fetch extends controller
     public function getAgeCat()
     {
         $stmt = $this->get_age_cat();
+        $response = [
+            'status' => 200,
+            'data' => $stmt,
+        ];
+        echo json_encode($response);
+        return false;
+    }
+    public function getAllTemplateMessage()
+    {
+        $stmt = $this->get_all_template_message();
+        $response = [
+            'status' => 200,
+            'data' => $stmt,
+        ];
+        echo json_encode($response);
+        return false;
+    }
+    public function getTempleInfo($templateID)
+    {
+        $stmt = $this->get_temple_info($templateID);
+        echo json_encode($stmt);
+        return false;
+    }
+    public function getAllSmsHistory()
+    {
+
+        $stmt = $this->get_all_sms_history();
         $response = [
             'status' => 200,
             'data' => $stmt,

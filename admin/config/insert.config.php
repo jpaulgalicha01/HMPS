@@ -243,4 +243,29 @@ class insert extends controller
         echo json_encode($response);
         return false;
     }
+
+    public function sendingNotification($Categories, $CategoriesLevelId)
+    {
+        $stmt = $this->sending_notification($Categories, $CategoriesLevelId);
+        if ($stmt) {
+            if (isset($stmt['status']) && $stmt['status'] == 200) {
+                $response = [
+                    'status' => 200,
+                    'message' => $stmt['message'],
+                ];
+            } else {
+                $response = [
+                    'status' => 409,
+                    'message' => $stmt['message'],
+                ];
+            }
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an encountered error.',
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
 }

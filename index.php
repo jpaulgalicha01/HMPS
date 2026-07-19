@@ -1,3 +1,15 @@
+<?php
+session_start();
+ob_start();
+
+if (isset($_COOKIE['UserID'])) {
+    ob_end_flush(header("Location: admin/index.php"));
+}
+
+
+?>
+
+
 <!doctype html>
 <html lang="en" data-bs-theme="auto">
 
@@ -39,7 +51,7 @@
                                         <h3 class="mt-3 mb-1">Login</h3>
                                     </div>
 
-                                    <form method="post" action="admin/index.php" autocomplete="on" validate>
+                                    <form autocomplete="on" validate id="loginForm">
                                         <div class="mb-3">
                                             <label class="form-label" for="uname">Username</label>
                                             <input
@@ -68,7 +80,7 @@
                                         </div>
 
                                         <div class="d-grid mt-4">
-                                            <button class="btn btn-primary btn-sm form-control" type="submit">
+                                            <button class="btn btn-primary btn-sm form-control" type="submit" id="login_btn">
                                                 <i class="fas fa-sign-in-alt me-2"></i>Sign in
                                             </button>
                                         </div>
@@ -88,29 +100,92 @@
                     </div>
                 </div>
 
-                <script>
-                    (function() {
-                        var btn = document.getElementById('togglePassword');
-                        var input = document.getElementById('password');
-                        var icon = document.getElementById('togglePasswordIcon');
 
-                        if (!btn || !input || !icon) return;
-
-                        btn.addEventListener('click', function() {
-                            var isPassword = input.type === 'password';
-                            input.type = isPassword ? 'text' : 'password';
-
-                            icon.classList.toggle('fa-eye', !isPassword);
-                            icon.classList.toggle('fa-eye-slash', isPassword);
-                        });
-                    })();
-                </script>
 </body>
-<script src="./assets/dist/js/ajax.js" defer></script>
+<script src="./assets/dist/js/ajax.js"></script>
 <script src="./assets/dist/js/bootstrap.bundle.min.js" defer></script>
 <script src="./js/BaseClass.js" defer></script>
 <script src="./js/Notification.js" defer></script>
-<script src="./js/LoadingScript.js" defer></script>
+<script defer>
+    (function() {
+        var btn = document.getElementById('togglePassword');
+        var input = document.getElementById('password');
+        var icon = document.getElementById('togglePasswordIcon');
 
+        if (!btn || !input || !icon) return;
+
+        btn.addEventListener('click', function() {
+            var isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+
+            icon.classList.toggle('fa-eye', !isPassword);
+            icon.classList.toggle('fa-eye-slash', isPassword);
+        });
+    })();
+
+
+    $(document).on("submit", "#loginForm", async function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        formData.append("loginUser", true);
+
+        // Set loading state
+        $("#login_btn").html(
+            "<div class='text-center'><i class='spinner-border spinner-border-sm'></i></div>"
+        );
+        document.getElementById("login_btn").disabled = true;
+        console.log("asdd")
+
+        try {
+            const response = await fetch("admin/inputConfig.php", {
+                method: "POST",
+                body: formData
+            });
+            // Fix 1: Corrected spelling from 'reposnse' to '!response.ok'
+            if (!response.ok) {
+                throw new Error(`Server status ${response.status}`);
+            }
+
+            // Fix 2: Parse the response body into usable JSON data
+            const res = await response.json();
+            if (res.status == 200) {
+                await ClsAlert({
+                    icon: "success",
+                    title: "Log in Successfully"
+                })
+
+                var url = new URL(window.location.href);
+                var params = new URLSearchParams(url.search);
+
+                if (params.get("UserID")) {
+                    window.location.reload();
+                } else {
+                    window.location.href = res.redirect;
+                }
+            } else {
+                ClsAlert({
+                    icon: "error",
+                    title: res.message
+                });
+                resetLoginButton();
+            }
+
+        } catch (error) {
+            // Fix 3: Safely catches network drops, invalid JSON parsing, or 500 server crashes
+            console.error("Login Process Error:", error);
+            ClsAlert({
+                icon: "error",
+                title: "Something went wrong. Please try again."
+            });
+            resetLoginButton();
+        }
+    });
+
+    // Helper function to restore the button state cleanly
+    function resetLoginButton() {
+        $("#login_btn").html('<i class="fas fa-sign-in-alt me-2"></i>Sign in');
+        document.getElementById("login_btn").disabled = false;
+    }
+</script>
 
 </html>

@@ -15,7 +15,7 @@ include_once './includes/navbar.php';
     /* hidden by default */
     display: none;
     position: absolute;
-    top: 230px;
+    top: 250px;
     left: 25px;
     right: auto;
     width: 350px;
@@ -40,7 +40,7 @@ include_once './includes/navbar.php';
       <div class="row gap-lg-0 gap-3">
         <div class="col-lg-7 col-12 ">
 
-          <div id="map" style="height: 100%;"></div>
+          <div id="map" style="height: 550px;"></div>
           <div id="mapModal" class="leaflet-modal">
             <div class="leaflet-modal-content">
               <span id="closeModal">&times;</span>

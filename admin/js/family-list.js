@@ -45,7 +45,6 @@ const initializeIndividualRecTable = () => {
   var formData = new FormData();
   formData.append("get_records_person",true);
   formData.append("person_unique_id", person_unique_id);
-  console.log(formData.getAll)
 
   fncExecute("inputConfig.php",formData,function(response, textStatus, jqXHR){
       const res = JSON.parse(response);  

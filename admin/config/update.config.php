@@ -189,4 +189,29 @@ class update extends controller
         echo json_encode($response);
         return false;
     }
+
+    public function updateTemplateNotif($template_id, $TemplateName, $categoryID, $CategoryLevel, $TemplateMessage)
+    {
+        $stmt  = $this->update_template_notif($template_id, $TemplateName, $categoryID, $CategoryLevel, $TemplateMessage);
+        if ($stmt) {
+            if (isset($stmt['status']) && $stmt['status'] == 200) {
+                $response = [
+                    'status' => 200,
+                    'message' => $stmt['message'],
+                ];
+            } else {
+                $response = [
+                    'status' => 409,
+                    'message' => $stmt['message'],
+                ];
+            }
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an during updating data.',
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
 }
