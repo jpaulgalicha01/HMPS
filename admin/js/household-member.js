@@ -1,6 +1,5 @@
 import { LeafLets, LeafLetDrawnItems, LeafLetDrawControl, LeafLetRemoveBackGround } from "../../js/LeafLetSetup.js";
-
-var map = LeafLets();
+var map = null;
 var drawnItems = LeafLetDrawnItems();
 var removeBackGround = LeafLetRemoveBackGround();
 // Keep a reference so we can remove/replace the draw control later.
@@ -33,15 +32,23 @@ function setDrawControl() {
     map.addLayer(drawnItems);
 }
 
-$(document).ready(function () {
+export function init() {
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) {
+        throw new Error('Household map container #map was not found after the module page loaded.');
+    }
+
+    if (map) {
+        return;
+    }
+
+    map = LeafLets(mapContainer);
     loadPolygons();
     setDrawControl();
     initializePropertyTable();
     LoadCategoryListPolygon();
-
-
-});
-
+    bindMapEvents();
+}
 
 function LoadCategoryListPolygon() {
     fncExecute(`inputConfig.php?getAreaSetupList=true&mainAreaID=2`, null, function (response) {
@@ -86,8 +93,8 @@ const initializePropertyTable = () => {
         destroy: true,
         pageLength: 5,
         lengthMenu: [[5, 10, 15, -1], [5, 10, 15, "All"]],
-        searching: true,
-        search: true,
+        searching: false,
+        search: false,
          ajax: {
             "url": "inputConfig.php",
             "type":"GET",
@@ -328,8 +335,9 @@ function fncAddHouseHoldMembersBtn(args = {}) {
         $sel.trigger('change');
     }
 }
-// When marker is created, validate it is inside the main polygon boundary.
-map.on('draw:created', function (e) {
+function bindMapEvents() {
+    // When marker is created, validate it is inside the main polygon boundary.
+    map.on('draw:created', function (e) {
     const layer = e.layer;
     const HouseHold = $("#household_coord");
     // Only handle markers (defensive)
@@ -360,9 +368,9 @@ map.on('draw:created', function (e) {
     drawnItems.addLayer(layer);
     layer.options.dbId = layer.options.dbId || null; // placeholder for backend usage
     HouseHold.val(coordArray);
-});
+    });
 
-map.on('draw:edited', function (evt) {
+    map.on('draw:edited', function (evt) {
     // Leaflet Draw fires edited when marker position changes
     // Validate and persist the updated marker position in the hidden field.
 
@@ -394,12 +402,13 @@ map.on('draw:edited', function (evt) {
     } catch (err) {
         console.error(err);
     }
-});
-map.on('draw:deleted', function () {
-    // Clear marker hidden value when user deletes marker
-    const HouseHold = $("#household_coord");
-    HouseHold.val('');
-});
+    });
+    map.on('draw:deleted', function () {
+        // Clear marker hidden value when user deletes marker
+        const HouseHold = $("#household_coord");
+        HouseHold.val('');
+    });
+}
 
 $(document).on("submit","#frmHouseHoldList",function(e){
     e.preventDefault();

@@ -1,19 +1,20 @@
 <?php
-include 'includes/autoload.inc.php';
+// include 'includes/autoload.inc.php';
 
-unset($_SESSION['title']);
-unset($_SESSION['Active_Navigate']);
-$_SESSION['title'] = 'Individual Records of Barangay Inhabitants';
-$_SESSION['Active_Navigate'] = 'Individual Records of Barangay Inhabitants';
+// unset($_SESSION['title']);
+// unset($_SESSION['Active_Navigate']);
+// $_SESSION['title'] = 'Individual Records of Barangay Inhabitants';
+// $_SESSION['Active_Navigate'] = 'Individual Records of Barangay Inhabitants';
 
-include_once './includes/header.php';
-include_once './includes/navbar.php';
+// include_once './includes/header.php';
+// include_once './includes/navbar.php';
 ?>
 <link href="../css/uploading-files.css" rel="stylesheet" />
 
 
 <div class="container-fluid pt-2">
-    <div class="row gap-lg-0 gap-3">
+
+    <div class="row card-body gap-lg-0 gap-3">
         <div class="col-lg-6 col-12 order-lg-1 order-2">
             <div class="card">
                 <h5 class="card-header d-flex justify-content-between align-items-center">Personal Information
@@ -197,31 +198,35 @@ include_once './includes/navbar.php';
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal -->
-    <div class="modal " id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class=" modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Upload File(CSV)</h1>
-                </div>
-                <!-- <form id="frmUploadCSV" enctype="multipart/form-data"> -->
-                <div class="modal-body">
-                    <div class="d-flex justify-content-center">
-                        <?php
-                        include_once '../tools/uploading-files.php';
-                        ?>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success" id="btnUploadFile"><i class="fas fa-save"></i> Upload</button>
-                </div>
-                <!-- </form> -->
 
+</div>
+<!-- Modal -->
+<div class="modal " id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class=" modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Upload File(CSV)</h1>
             </div>
+            <!-- <form id="frmUploadCSV" enctype="multipart/form-data"> -->
+            <div class="modal-body">
+                <div class="d-flex justify-content-center">
+                    <?php
+                    include_once '../tools/uploading-files.php';
+                    ?>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="btnUploadFile"><i class="fas fa-save"></i> Upload</button>
+            </div>
+            <!-- </form> -->
+
         </div>
     </div>
-    <script src="js/family-list.js" defer></script>
-    <script src="../js/uploading-files.js" defer></script>
-    <?php include_once './includes/footer.php'; ?>
+</div>
+<script src="js/family-list.js" defer></script>
+<script src="../js/uploading-files.js" defer></script>
+<?php //include_once './includes/footer.php';
+?>

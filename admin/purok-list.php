@@ -1,13 +1,13 @@
 <?php
-include 'includes/autoload.inc.php';
+// include 'includes/autoload.inc.php';
 
-unset($_SESSION['title']);
-unset($_SESSION['Active_Navigate']);
-$_SESSION['title'] = 'Purok/Sitio List';
-$_SESSION['Active_Navigate'] = 'Purok/Sitio List';
+// unset($_SESSION['title']);
+// unset($_SESSION['Active_Navigate']);
+// $_SESSION['title'] = 'Purok/Sitio List';
+// $_SESSION['Active_Navigate'] = 'Purok/Sitio List';
 
-include_once './includes/header.php';
-include_once './includes/navbar.php';
+// include_once './includes/header.php';
+// include_once './includes/navbar.php';
 ?>
 
 
@@ -45,5 +45,6 @@ include_once './includes/navbar.php';
         </div>
     </div>
 
-    <script src="js/purok/sitio-name.js" defer></script>
-    <?php include_once './includes/footer.php'; ?>
+    <!-- <script src="js/purok/sitio-name.js" defer></script> -->
+    <?php //include_once './includes/footer.php'; 
+    ?>

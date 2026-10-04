@@ -54,9 +54,19 @@
 .bg-primary, .btn-primary {
   border-color: #2F7D5D !important;
 }
-
 .btn.btn-primary, .btn-primary {
   color: #fff !important;
 }
 
+button.nav-link.active{
+  background-color: #198754 !important;
+  color: #f7f7f7 !important;
+}
 
+button.nav-link.active:hover{
+  background-color: #198754 !important;
+  color: #f7f7f7 !important;
+}
+button.nav-link{
+  color: #000000 !important;
+}

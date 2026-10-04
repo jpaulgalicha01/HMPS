@@ -257,6 +257,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else if (isset($_GET["getAgeCategory"])) {
         $fetch = new fetch();
         $fetch->getAgeCat();
+    } else if (isset($_GET["getAgePurokReport"])) {
+        $fetch = new fetch();
+        $fetch->getAgePurokReport();
     } else if (isset($_GET["sendingSMS"])) {
         $recipients = "09948487917";
         $message = "Hello, this is a test message from the SMS Gateway API.";

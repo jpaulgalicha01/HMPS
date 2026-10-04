@@ -1,16 +1,16 @@
 <?php
 include 'includes/autoload.inc.php';
 
-unset($_SESSION['title']);
-unset($_SESSION['Active_Navigate']);
-$_SESSION['title'] = 'Household & Household Members';
-$_SESSION['Active_Navigate'] = 'Household & Household Members';
+// unset($_SESSION['title']);
+// unset($_SESSION['Active_Navigate']);
+// $_SESSION['title'] = 'Household & Household Members';
+// $_SESSION['Active_Navigate'] = 'Household & Household Members';
 
-include_once './includes/header.php';
-include_once './includes/navbar.php';
+// include_once './includes/header.php';
+// include_once './includes/navbar.php';
 ?>
 <link href="../assets/select-js/select2.min.css" rel="stylesheet" />
-</script>
+
 
 <div class="container-fluid">
     <div class="row gap-lg-0 gap-3">
@@ -85,6 +85,27 @@ include_once './includes/navbar.php';
             <div class="card" style="height: 500px;">
                 <h5 class="card-header">Household & Household Members List</h5>
                 <div class="card-body">
+                    <div class="d-flex align-item-center gap-1 mb-2">
+                        <div class="flex-fill">
+                            <select class="form-select form-control form-select-sm" id="searchBy" name="searchBy">
+                                <option value="0">Infants</option>
+                                <option value="2">Toddlers</option>
+                                <option value="4">Preschoolers</option>
+                                <option value="6">Middle Childhood</option>
+                                <option value="12">Adolescents / Teenagers</option>
+                                <option value="20">Young Adults</option>
+                                <option value="40">Middle-Aged Adults</option>
+                                <option value="60">Seniors / Older Adults</option>
+                            </select>
+                        </div>
+                        <div class="flex-fill">
+                            <input type="text" class="form-control form-control-sm" placeholder="Search..." id="searchHousehold" />
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-success btn-sm form-control" id="btnSearchHousehold"><i class="fas fa-search"></i> Search</button>
+                        </div>
+                    </div>
+
                     <table class="table table-striped table-bordered" id="householdTable">
 
                     </table>
@@ -92,8 +113,8 @@ include_once './includes/navbar.php';
             </div>
         </div>
     </div>
-    <script type="module" src="./js/household-member.js" defer></script>
-    <script src="../assets/select-js/select2.min.js" defer></script>
-    <script src="../js/InitializeSelect.js" defer></script>
+</div>
 
-    <?php include_once './includes/footer.php'; ?>
+<!-- <script type="module" src="./js/household-member.js" defer></script>
+    <script src="../assets/select-js/select2.min.js" defer></script>
+    <script src="../js/InitializeSelect.js" defer></script> -->

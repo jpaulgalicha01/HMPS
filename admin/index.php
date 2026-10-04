@@ -53,25 +53,34 @@ include_once './includes/navbar.php';
 
             <div class="col-12 px-0 pb-3">
               <div class="row">
-                <div class="col-6 px-0">
+                <div class="col-md-12 px-0">
                   <div class="card h-100">
-                    <h5 class="card-header" style="font-size: clamp(.2rem, 0vw + 1rem, 1.5rem)">TOTAL NUMBER OF POPULATION</h5>
+                    <h5 class="card-header" style="font-size: clamp(.2rem, 0vw + 1rem, 1.5rem)">TOTAL NUMBER OF POPULATION (TALUBANGI)</h5>
                     <div class="card-body">
                       <!-- <h5 class="card-title"><i class="bi bi-people-fill"></i> 1,234</h5> -->
-                      <p class="card-text fs-1"><i class="fas fa-users"></i>
-                        <?php
-                        $count_total_users = new fetch();
-                        $count_total_users->CountPopulation();
+                      <div class="d-flex align-items-center gap-3">
+                        <p class="card-text fs-1 mb-0 col-6"><i class="fas fa-users"></i>
+                          <?php
+                          $count_total_users = new fetch();
+                          $count_total_users->CountPopulation();
+                          ?>
+                        </p>
 
-                        ?>
-                      </p>
+                        <p class="card-text fs-1"><i class="fas fa-home"></i>
+                          <?php
+                          $count_total_household = new fetch();
+                          $count_total_household->CountHouseHold();
+                          ?>
+
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-
+                <!-- 
                 <div class="col-6 px-0">
                   <div class="card h-100">
-                    <h5 class="card-header" style="font-size: clamp(.2rem, 0vw + 1rem, 1.5rem)">TOTAL NUMBER OF HOUSEHOLD</h5>
+                    <h5 class="card-header" style="font-size: clamp(.2rem, 0vw + 1rem, 1.5rem)">TOTAL NUMBER OF HOUSEHOLD (TALUBANGI)</h5>
                     <div class=" card-body">
                       <p class="card-text fs-1"><i class="fas fa-home"></i>
                         <?php
@@ -83,7 +92,7 @@ include_once './includes/navbar.php';
                       </p>
                     </div>
                   </div>
-                </div>
+                </div> -->
 
               </div>
             </div>

@@ -1,6 +1,6 @@
-export const LeafLets = () => {
+export function LeafLets(container = 'map') {
     // Initialize the map
-    var map = L.map('map').setView([9.9833, 122.8167], 13);
+    var map = L.map(container).setView([9.9833, 122.8167], 13);
     // Google Roadmap
     var googleRoadmap = L.tileLayer(
         'https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', {
@@ -127,4 +127,3 @@ var world = [
 return world;
 
 }
-

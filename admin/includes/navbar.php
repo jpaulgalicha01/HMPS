@@ -21,7 +21,14 @@
                                   ? 'active'
                                   : '' ?>" aria-current="page" href="index.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
           </li>
-          <li class="nav-item dropdown">
+
+          <li class="nav-item">
+            <a class="nav-link <?= $_SESSION['Active_Navigate'] == 'Household Information' ? 'active' : '' ?>" aria-current="page" href="household.php"><i class="fas fa-home"></i> Household Information</a>
+          </li>
+
+
+
+          <!-- <li class="nav-item dropdown">
             <a class="nav-link secondary dropdown-toggle 
                   <?= $_SESSION['Active_Navigate'] == 'Individual Records of Barangay Inhabitants' ||
                     $_SESSION['Active_Navigate'] ==
@@ -39,10 +46,13 @@
                                             ? 'active'
                                             : '' ?>" href="household-member.php">Household & Household Members</a></li>
             </ul>
+          </li> -->
+
+          <li class="nav-item">
+            <a class="nav-link <?= $_SESSION['Active_Navigate'] == 'Setup' ? 'active' : '' ?>" aria-current="page" href="setup.php"><i class="fas fa-cog"></i> Setup</a>
           </li>
 
-
-          <li class="nav-item dropdown">
+          <!-- <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle 
                   <?= $_SESSION['Active_Navigate'] == 'Barangay Setup'
                     ? ($_SESSION['Active_Navigate'] == 'Categories Setup'
@@ -69,10 +79,13 @@
                                             ? 'active'
                                             : '' ?>" href="area-setup.php">Area</a></li>
             </ul>
-          </li>
+          </li> -->
 
           <li class="nav-item">
             <a class="nav-link <?= $_SESSION['Active_Navigate'] == 'Resident Messaging' ? 'active' : '' ?>" aria-current="page" href="resident-messaging.php"><i class="fas fa-envelope"></i> Resident Messaging</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <?= $_SESSION['Active_Navigate'] == 'Report' ? 'active' : '' ?>" aria-current="page" href="age-category-report.php"><i class="fas fa-chart-bar"></i> Report</a>
           </li>
 
           <!-- <li class="nav-item">

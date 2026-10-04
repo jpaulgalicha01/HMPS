@@ -476,9 +476,9 @@ class controller extends db
                 $pdo->rollBack();
                 return ['message' => 'Category not found.'];
             }
-            if (empty($categoriesLevelId)) {
-                return ['status' => 409, 'message' => 'Please Select First Category Level.'];
-            }
+            // if (empty($categoriesLevelId)) {
+            //     return ['status' => 409, 'message' => 'Please Select First Category Level.'];
+            // }
 
             // Build placeholders for IN clause
             $placeholders = implode(',', array_fill(0, count($CategoriesLevelId), '?'));
@@ -1218,6 +1218,69 @@ class controller extends db
             return $HousholdList;
         } catch (PDOException $err) {
             return  $err->getMessage();
+        }
+    }
+
+    protected function get_age_purok_report()
+    {
+        try {
+            $query = "
+                SELECT DISTINCT
+                    CASE
+                        WHEN residents.age_years < 2 THEN 0
+                        WHEN residents.age_years < 4 THEN 2
+                        WHEN residents.age_years < 6 THEN 4
+                        WHEN residents.age_years < 12 THEN 6
+                        WHEN residents.age_years < 20 THEN 12
+                        WHEN residents.age_years < 40 THEN 20
+                        WHEN residents.age_years < 60 THEN 40
+                        ELSE 60
+                    END AS category_id,
+                    CASE
+                        WHEN residents.age_years < 2 THEN 'Infants: 0-1 year'
+                        WHEN residents.age_years < 4 THEN 'Toddlers: 2-3 years'
+                        WHEN residents.age_years < 6 THEN 'Preschoolers: 4-5 years'
+                        WHEN residents.age_years < 12 THEN 'Middle Childhood: 6-11 years'
+                        WHEN residents.age_years < 20 THEN 'Adolescents / Teenagers: 12-19 years'
+                        WHEN residents.age_years < 40 THEN 'Young Adults: 20-39 years'
+                        WHEN residents.age_years < 60 THEN 'Middle-Aged Adults: 40-59 years'
+                        ELSE 'Seniors / Older Adults: 60+ years'
+                    END AS age_category,
+                    residents.purok_sitio_id,
+                    residents.purok_sitio_name,
+                    residents.age_years,
+                    residents.full_name,
+                    residents.household_number
+                FROM (
+                    SELECT
+                        ir.person_unique_id,
+                        ir.first_name,
+                        ir.last_name,
+                        TIMESTAMPDIFF(YEAR, ir.birdthdate, CURDATE()) AS age_years,
+                        TRIM(CONCAT_WS(' ', ir.first_name, ir.middle_name, ir.last_name, NULLIF(ir.suffix, ''))) AS full_name,
+                        hl.houshold_id AS household_number,
+                        hl.purok_sitio_id,
+                        COALESCE(ps.purok_sitio_name, 'Unassigned Purok') AS purok_sitio_name
+                    FROM individual_records_list ir
+                    LEFT JOIN household_member_list hm
+                        ON hm.person_unique_id = ir.person_unique_id
+                    LEFT JOIN household_list hl
+                        ON hl.houshold_id = hm.household_number
+                    LEFT JOIN purok_sitio_list ps
+                        ON ps.purok_sitio_id = hl.purok_sitio_id
+                ) AS residents
+                WHERE residents.age_years >= 0
+                ORDER BY category_id, purok_sitio_name, last_name, first_name
+            ";
+
+            $statement = $this->PlsConnect()->prepare($query);
+            $statement->execute();
+            return $statement->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $error) {
+            return [
+                'status' => 500,
+                'message' => 'Unable to load the age category report.'
+            ];
         }
     }
 

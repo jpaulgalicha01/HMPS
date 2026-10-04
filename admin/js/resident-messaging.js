@@ -45,7 +45,7 @@ const initializeIndividualRecTable = () => {
             "data": {"getAllTemplateMessage": true},
         },
         columns: [
-            { title: "Date Added", data: "DateAdded", className: "dt-body-center dt-head-center px-2",width: "20%"  },
+            { title: "Date Added", data: "DateAdded",visible:false, className: "dt-body-center dt-head-center px-2",width: "20%"  },
             { title: "Target Group", data: "category_name", className: "dt-body-center dt-head-center px-2",width: "15%",
                 render: function (data,type,row){
                     if (data == null) return '';
@@ -57,7 +57,7 @@ const initializeIndividualRecTable = () => {
                     `;
                 }
               },
-            { title: "Template Name", data: "TemplateName", className: "dt-body-center dt-head-center px-2",width: "20%"  },
+            { title: "Template Name", data: "TemplateName", visible:false, className: "dt-body-center dt-head-center px-2",width: "20%"  },
             { title: "Message Snippet", data: "TemplateMessage", className: "dt-body-center dt-head-center px-2"  },
             {
                 title: "Action", data: "template_id", className: "dt-body-center dt-head-center", width: "10%",

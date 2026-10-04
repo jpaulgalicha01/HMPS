@@ -1,5 +1,8 @@
-import { LeafLets, LeafLetDrawnItems, LeafLetDrawControl, LeafLetRemoveBackGround } from "../../js/LeafLetSetup.js"
-var map = LeafLets();
+import { LeafLets,LeafLetDrawnItems, LeafLetDrawControl, LeafLetRemoveBackGround } from "../../js/LeafLetSetup.js"
+var map = LeafLets('mapss');
+
+
+// var map = LeafLets();
 var drawnItems = LeafLetDrawnItems();
 var drawControl = LeafLetDrawControl(map, drawnItems);
 var CoordinateArray = [];
@@ -16,8 +19,10 @@ $(document).ready(async function() {
     await LegendList();
     await loadPolygons();  
     await setDrawControl();
+    
+  
 
-   
+    map.addControl(drawControl);
 });
 
 

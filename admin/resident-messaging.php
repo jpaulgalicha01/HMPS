@@ -26,9 +26,9 @@ include_once './includes/navbar.php';
                                     <div class="card-body">
                                         <form id="submitTemplateAlert">
                                             <input type="hidden" name="template_id" id="template_id" />
-                                            <div class="mb-3">
+                                            <div class="mb-3 d-none">
                                                 <label for="TemplateName" class="form-label">Template Name </i> <span class="text-danger">*</span></span></label>
-                                                <input type="text" class="form-control text-uppercase" id="TemplateName" name="TemplateName" required>
+                                                <input type="text" class="form-control text-uppercase" id="TemplateName" name="TemplateName">
                                             </div>
                                             <div class="mb-3">
                                                 <label for="" class="form-label">Category <span class="text-danger">*</span></label>

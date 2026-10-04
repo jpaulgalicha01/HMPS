@@ -261,6 +261,23 @@ class fetch extends controller
         echo json_encode($response);
         return false;
     }
+
+    public function getAgePurokReport()
+    {
+        $result = $this->get_age_purok_report();
+        if (isset($result['status']) && $result['status'] !== 200) {
+            http_response_code($result['status']);
+            echo json_encode($result);
+            return false;
+        }
+
+        echo json_encode([
+            'status' => 200,
+            'data' => $result,
+        ]);
+        return false;
+    }
+
     public function getAllTemplateMessage()
     {
         $stmt = $this->get_all_template_message();

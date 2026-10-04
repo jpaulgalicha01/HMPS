@@ -1,10 +1,18 @@
 import {LeafLets,LeafLetDrawnItems,LeafLetDrawControl} from "../../js/LeafLetSetup.js"
-var map = LeafLets();
+
+var map = LeafLets('map');
+
 var drawnItems = LeafLetDrawnItems();
 var drawControl = LeafLetDrawControl(map,drawnItems);
 
 $(document).ready(function () {
   loadPolygons();
+     if (drawControl) {
+        map.removeControl(drawControl); // ✅ clears previous controller
+    }
+
+  map.addControl(drawControl);
+
 }); 
 function loadPolygons() {
     fncExecute("inputConfig.php?fetch_polygons=true", null, function (response) {
