@@ -16,6 +16,10 @@ $modules = [
         'page' => 'individual-records.php',
         'scripts' => [
             [
+                'src' => './../js/uploading-files.js',
+                'type' => 'normal'
+            ],
+            [
                 'src' => './js/family-list.js',
                 'type' => 'normal'
             ],
