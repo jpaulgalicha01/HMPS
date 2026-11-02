@@ -11,6 +11,8 @@ $(document).ready( function(){
     loadPolygons();
     chartAgeCat();
     chartPwdCat();
+    $("#frmFilterList #drpFilterType").trigger("change"); // Trigger change event to set initial visibility of filters
+
 })
 
 // Main polygon for the area setup
@@ -80,6 +82,10 @@ var houseIcon = L.icon({
     popupAnchor: [0, -24]
 });
 
+//Default marker of leaflet js  
+var defaultIcon = L.icon({
+    iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+    iconSize: [25, 41],});
 
 function markers() {
 
@@ -114,7 +120,8 @@ $("#closeModal").click(function (){
     // Un-highlight marker
     if (window.__lastHouseholdMarker) {
         try {
-            window.__lastHouseholdMarker.setOpacity(1);
+            // window.__lastHouseholdMarker.setOpacity(1);
+            window.__lastHouseholdMarker.setIcon(houseIcon); // Reset to house icon
         } catch (e) {}
     }
     window.__lastHouseholdMarker = null;
@@ -133,24 +140,29 @@ function houseHoldInfo(householdId, marker = null) {
         // Highlight clicked marker
         if (window.__lastHouseholdMarker) {
             try {
-                window.__lastHouseholdMarker.setOpacity(1);
+                // window.__lastHouseholdMarker.setOpacity(1);
+                //change icon back to houseIcon if needed
+                window.__lastHouseholdMarker.setIcon(houseIcon);
             } catch (e) {}
         }
         window.__lastHouseholdMarker = marker;
-        marker.setOpacity(0.7);
+        window.__lastHouseholdMarker.setIcon(defaultIcon); // Ensure it's the house icon
+        // marker.setOpacity(0.7);
 
         res2.HouseHoldMemberList.forEach(row2 => {
             // Append records (do not overwrite)
             const label = row2.family_order == 1
-                ? "Father Name :"
+                ? "Mr. :"
                 : row2.family_order == 2
-                    ? "Mother Name :"
+                    ? "Mrs. :"
                     : "";
 
             tableList += `
-                <tr>
-                    <td><b>${label}</b> ${row2.full_name}</td>
-                </tr>
+                <tbody>
+                    <tr>
+                        <td><b>${label}</b> ${row2.full_name}</td>
+                    </tr>
+                </tbody>
             `;
         });
         
@@ -158,6 +170,7 @@ function houseHoldInfo(householdId, marker = null) {
             <h4>Household Number : </br><u>${res2.household_number}</u></h4>
             <h6>Purok/Sitio: ${res2.purok_sitio_name}</h6>
             <table class="table table-sm">
+                <thead><tr><th>Household Members</th></tr></thead>
                 ${tableList}
             </table>
         `;

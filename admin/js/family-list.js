@@ -56,8 +56,7 @@ const initializeIndividualRecTable = () => {
   
    $("#btnData").html(`<i class="fas fa-edit"></i> Update Data`);
    $("#btdnResetForm").html(`<i class="fas fa-times"></i> Cancel`);
-
-
+  $("#modalPersonalInfo").modal("show");
 }
 function deleteIndividualRecords(person_unique_id, reference_number) {
     var formdata = new FormData();
@@ -114,6 +113,7 @@ $(document).on("submit","#frmSubmitPersonalInfo",function(e){
   fncExecute("inputConfig.php",formData,function(response, textStatus, jqXHR){
    var response = JSON.parse(response);
         if (response.status == 200) {
+          $("#modalPersonalInfo").modal("hide");
           ClsAlert({ icon: "success", title: response.message });
           $("#frmSubmitPersonalInfo")[0].reset();
           initializeIndividualRecTable();
@@ -155,4 +155,10 @@ $(document).on("click","#btnUploadFile", function(e) {
       }
     
     }, "POST");
+})
+
+
+$("#btnModalPersonalInfo").click(function(){
+  $("#frmSubmitPersonalInfo")[0].reset();
+  $("#modalPersonalInfo").modal("show");
 })

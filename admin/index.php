@@ -15,8 +15,8 @@ include_once './includes/navbar.php';
     /* hidden by default */
     display: none;
     position: absolute;
-    top: 250px;
-    left: 25px;
+    top: 190px;
+    left: 270px;
     right: auto;
     width: 350px;
     background: white;
@@ -117,11 +117,28 @@ include_once './includes/navbar.php';
                             <select class="form-select form-select-sm" aria-label="Default select example" id="drpFilterType">
                               <option value="1">Household Number</option>
                               <option value="2">Full Name</option>
+                              <option value="3">Purok</option>
                             </select>
                           </div>
                           <div class="flex-fill px-0">
                             <label for="keyword" class="form-label">Keyword</label>
                             <input type="text" class="form-control form-control-sm" placeholder="search..." id="keyword" />
+                            <select class="form-select form-select-sm d-none" aria-label="Default select example" id="drpPurok">
+                              <option value="" selected>all</option>
+
+                              <?php
+                              $fetch_sitio_pruok = new fetch();
+                              $fetch_sitio_pruok_res = $fetch_sitio_pruok->getAllSitioPurok();
+                              if ($fetch_sitio_pruok_res->rowCount()) {
+                                while ($fetch_sitio_pruok_row = $fetch_sitio_pruok_res->fetch()) {
+                              ?>
+                                  <option value="<?= $fetch_sitio_pruok_row["purok_sitio_id"] ?>"><?= $fetch_sitio_pruok_row["purok_sitio_name"] ?></option>
+
+                              <?php
+                                }
+                              }
+                              ?>
+                            </select>
                           </div>
                           <div class="col-md-auto px-0 align-self-md-end text-md-end">
                             <button class="btn btn-success btn-sm form-control" type="submit"><i class="fas fa-search"></i></button>

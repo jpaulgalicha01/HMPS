@@ -153,43 +153,43 @@ $(document).on("reset", "#submitTemplateAlert", function (e) {
 });
 
 
-$("#sendingModal #drpCategories").change(function (){
-    var value = $(this).val();
-    $("#contentCategoriesLevel").removeClass("d-none")
+// $("#sendingModal #drpCategories").change(function (){
+//     var value = $(this).val();
+//     $("#contentCategoriesLevel").removeClass("d-none")
 
-    fncExecute(`inputConfig.php?getCategoryLevel=true&categoryID=${value}`,'',function (response) {
-            const res = JSON.parse(response);
-            if(res.status == 200){
-                const list = document.getElementById("listCategoriesLevel");
-                list.innerHTML = ""; // clear old checkboxes
-                res.data.forEach((level, i) => {
-                    const col = document.createElement("div");
-                    col.className = "col-md-4";
+//     fncExecute(`inputConfig.php?getCategoryLevel=true&categoryID=${value}`,'',function (response) {
+//             const res = JSON.parse(response);
+//             if(res.status == 200){
+//                 const list = document.getElementById("listCategoriesLevel");
+//                 list.innerHTML = ""; // clear old checkboxes
+//                 res.data.forEach((level, i) => {
+//                     const col = document.createElement("div");
+//                     col.className = "col-md-4";
 
-                    const wrapper = document.createElement("div");
-                    wrapper.className = "mb-3 form-check";
+//                     const wrapper = document.createElement("div");
+//                     wrapper.className = "mb-3 form-check";
 
-                    const cb = document.createElement("input");
-                    cb.type = "checkbox";
-                    cb.className = "form-check-input";
-                    cb.id = `levelCheck${i}`;
-                    cb.name = "categoriesLevel[]";
-                    cb.value = level.category_level_id;
+//                     const cb = document.createElement("input");
+//                     cb.type = "checkbox";
+//                     cb.className = "form-check-input";
+//                     cb.id = `levelCheck${i}`;
+//                     cb.name = "categoriesLevel[]";
+//                     cb.value = level.category_level_id;
 
-                    const label = document.createElement("label");
-                    label.className = "form-check-label";
-                    label.setAttribute("for", cb.id);
-                    label.textContent = level.category_level_name;
+//                     const label = document.createElement("label");
+//                     label.className = "form-check-label";
+//                     label.setAttribute("for", cb.id);
+//                     label.textContent = level.category_level_name;
 
-                    wrapper.appendChild(cb);
-                    wrapper.appendChild(label);
-                    col.appendChild(wrapper);
-                    list.appendChild(col);
-                });
-            }
+//                     wrapper.appendChild(cb);
+//                     wrapper.appendChild(label);
+//                     col.appendChild(wrapper);
+//                     list.appendChild(col);
+//                 });
+//             }
 
-        },'GET')
-})
+//         },'GET')
+// })
 
 
 $(document).on("submit","#sendingModal",function(e){

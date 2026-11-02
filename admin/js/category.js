@@ -6,6 +6,14 @@ $(document).ready(function() {
 
 
 function fncAddLevelBtn() {
+    const tbody = document.getElementById('catergoryLevelList');
+
+    if (tbody.querySelector('tr')) {
+        alert('Only one level can be added.');
+        return;
+    }
+
+    
     const tr = document.createElement('tr');
     tr.classList.add('text-center');
     tr.dataset.categoryLevelId = ""; // Empty ID for new levels

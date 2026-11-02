@@ -39,10 +39,17 @@ export function init() {
     }
 
     if (map) {
+    
         return;
     }
 
     map = LeafLets(mapContainer);
+    document.getElementById('modalHouseholdInfo').addEventListener('shown.bs.modal', () => {
+        map.invalidateSize({ pan: false });
+        fitMainBoundaries();
+    });
+
+
     loadPolygons();
     setDrawControl();
     initializePropertyTable();
@@ -93,8 +100,8 @@ const initializePropertyTable = () => {
         destroy: true,
         pageLength: 5,
         lengthMenu: [[5, 10, 15, -1], [5, 10, 15, "All"]],
-        searching: false,
-        search: false,
+        searching: true,
+        search: true,
          ajax: {
             "url": "inputConfig.php",
             "type":"GET",
@@ -129,24 +136,45 @@ const initializePropertyTable = () => {
     });
 };
 
-// Main polygon for the area setup
-function loadPolygons() {
-    fncExecute("inputConfig.php?fetch_polygons=true", null, function (response) {
-        var data = JSON.parse(response);
-        data.forEach(function (poly) {
-            var mainLayer = L.polygon(poly.coordinates).addTo(map);
-            mainBoundaryLayers.push(mainLayer);
 
-            // Keep existing mask logic (visual effect)
-            L.polygon([removeBackGround].concat([poly.coordinates]), {
-                stroke: false,
-                fillColor: "#000000",
-                fillOpacity: .9
-            }).addTo(map);
+function fitMainBoundaries() {
+    if (!map || mainBoundaryLayers.length === 0) return;
 
-            map.fitBounds(mainLayer.getBounds());
+    const bounds = L.latLngBounds([]);
+    mainBoundaryLayers.forEach(layer => bounds.extend(layer.getBounds()));
+
+    if (bounds.isValid()) {
+        map.fitBounds(bounds, {
+            padding: [20, 20],
+            maxZoom: 20
         });
-    }, "GET");
+    }
+}
+
+// Main polygon for the area setup
+async function loadPolygons() {
+    const data = await $.ajax({
+        url: 'inputConfig.php?fetch_polygons=true',
+        method: 'GET',
+        dataType: 'json'
+    });
+
+    if (!Array.isArray(data)) {
+        throw new Error('Expected polygon data to be an array.');
+    }
+
+    data.forEach(poly => {
+        const mainLayer = L.polygon(poly.coordinates).addTo(map);
+        mainBoundaryLayers.push(mainLayer);
+
+        L.polygon([removeBackGround].concat([poly.coordinates]), {
+            stroke: false,
+            fillColor: '#000000',
+            fillOpacity: 0.9
+        }).addTo(map);
+    });
+
+    fitMainBoundaries();
 }
 
 
@@ -304,6 +332,7 @@ function fncAddHouseHoldMembersBtn(args = {}) {
     }
 
     $sel.select2({
+        dropdownParent: $('#modalHouseholdInfo .modal-body'),
         placeholder: 'Search personal name...',
         width: '100%',
         minimumInputLength: 0,
@@ -425,11 +454,35 @@ $(document).on("submit","#frmHouseHoldList",function(e){
 
 
     const HouseHoldMember = [];
-    document.querySelectorAll('#HousholdMemberList tr').forEach(tr => {
+    const familyOrder = [];
+
+   document.querySelectorAll('#HousholdMemberList tr').forEach(tr => {
         const person_unique_id = tr.querySelector('td:nth-child(1) select').value;
         const family_order = tr.querySelector('td:nth-child(2) input').value;
-        HouseHoldMember.push({person_unique_id, family_order });
+
+        HouseHoldMember.push({ person_unique_id, family_order });
+        familyOrder.push(family_order);
     });
+    // checking if family orde
+
+    console.log(familyOrder)
+
+    if (HasSameValueArr(familyOrder)) {
+       ClsAlert({
+            icon: 'warning',
+            title: 'Same family order detected. Please ensure each household member has a unique family order.'
+        });
+        return;
+    }
+
+    if (HasSameValueArr(HouseHoldMember.map(m => m.person_unique_id))) {
+        ClsAlert({
+            icon: 'warning',
+            title: 'Duplicate household members detected. Please ensure each household member is unique.'
+        });
+        return;
+    }
+    
     formData.append("houshold_id",$("#houshold_id").val())
     formData.append("household_coord",$("#household_coord").val())
     formData.append("household_number",$("#household_number").val())
@@ -439,6 +492,7 @@ $(document).on("submit","#frmHouseHoldList",function(e){
     fncExecute("inputConfig.php",formData,function(response, textStatus, jqXHR){
         const res = JSON.parse(response);  
         if(res.status === 200) {
+            $("#modalHouseholdInfo").modal("hide");
             ClsAlert({ icon: "success", title: res.message });
             $("#frmHouseHoldList")[0].reset();
             $("#householdTable").DataTable().ajax.reload();
@@ -482,6 +536,7 @@ function updateHouseHold(ID) {
                 fncAddHouseHoldMembersBtn({data:HouseHoldMemberList})
             })
         }
+        $("#modalHouseholdInfo").modal("show");
     },"GET")
 }
 function deleteHouseHold(ID, HouseholdNumber) {
@@ -515,3 +570,9 @@ function deleteHouseHold(ID, HouseholdNumber) {
         }
 });
 }
+
+
+$("#btnModalHouseholdInfo").click(function(){
+  $("#frmHouseHoldList")[0].reset();
+  $("#modalHouseholdInfo").modal("show");
+})

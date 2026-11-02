@@ -1,34 +1,93 @@
-<div class="bg-primary p-2 text-center text-white" style="max-height:90px; min-height:5px; height:auto;">
+<style>
+  @media (min-width: 992px) {
+    body.app-layout {
+      margin-left: 250px;
+    }
+
+    .app-sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 1030;
+      width: 250px;
+      height: 100vh;
+      align-items: flex-start;
+      overflow-y: auto;
+      border-radius: 0 !important;
+    }
+
+    .app-sidebar>.container-fluid,
+    .app-sidebar .container-fluid.d-lg-flex {
+      display: flex !important;
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch !important;
+    }
+
+    .app-sidebar .navbar-brand {
+      display: block;
+      margin: 12px auto 20px;
+    }
+
+    .app-sidebar .navbar-collapse {
+      display: block !important;
+      width: 100%;
+    }
+
+    .app-sidebar .navbar-nav {
+      width: 100%;
+      flex-direction: column;
+    }
+
+    .app-sidebar .nav-link {
+      padding: 12px 16px;
+    }
+
+    .app-sidebar .align-items-center.d-lg-block {
+      margin: 12px 16px;
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    .app-title {
+      min-height: 48px;
+    }
+  }
+</style>
+
+<div class="app-title bg-primary p-2 text-center text-white">
   <p class="fs-3 fw-bold">Household Mapping and Profiling System</p>
 </div>
-<nav class="navbar navbar-expand-lg bg-body-tertiary shadow mb-3 bg-body-tertiary rounded">
-  <div class="container-fluid">
-    <div class="mx-auto" style="width: 50px; height: 50px; border-radius: 18px;">
-      <a class="navbar-brand text-center " href="#">
-        <img src="../assets/img/Logo.png" alt="logo" class="img-fluid d-flex justify-content-center align-self-center">
-      </a>
-    </div>
-    <!-- HMPS -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="container-fluid d-lg-flex d-grid align-items-center">
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-1">
-          <li class="nav-item">
-            <a class="nav-link <?= $_SESSION['Active_Navigate'] ==
-                                  'Dashboard'
-                                  ? 'active'
-                                  : '' ?>" aria-current="page" href="index.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link <?= $_SESSION['Active_Navigate'] == 'Household Information' ? 'active' : '' ?>" aria-current="page" href="household.php"><i class="fas fa-home"></i> Household Information</a>
-          </li>
 
 
+<body class="bg-light mb-5 app-layout">
+  <nav class="navbar navbar-expand-lg bg-body-tertiary shadow mb-3 bg-body-tertiary rounded app-sidebar">
+    <div class="container-fluid">
+      <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 18px;">
+        <a class="navbar-brand text-center " href="#">
+          <img src="../assets/img/Logo.png" alt="logo" class="img-fluid d-flex justify-content-center align-self-center">
+        </a>
+      </div>
+      <!-- HMPS -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="container-fluid d-lg-flex d-grid align-items-center pt-3">
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-1">
+            <li class="nav-item">
+              <a class="nav-link <?= $_SESSION['Active_Navigate'] ==
+                                    'Dashboard'
+                                    ? 'active'
+                                    : '' ?>" aria-current="page" href="index.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            </li>
 
-          <!-- <li class="nav-item dropdown">
+            <li class="nav-item">
+              <a class="nav-link <?= $_SESSION['Active_Navigate'] == 'Household Information' ? 'active' : '' ?>" aria-current="page" href="household.php"><i class="fas fa-home"></i> Household Information</a>
+            </li>
+
+
+
+            <!-- <li class="nav-item dropdown">
             <a class="nav-link secondary dropdown-toggle 
                   <?= $_SESSION['Active_Navigate'] == 'Individual Records of Barangay Inhabitants' ||
                     $_SESSION['Active_Navigate'] ==
@@ -48,11 +107,11 @@
             </ul>
           </li> -->
 
-          <li class="nav-item">
-            <a class="nav-link <?= $_SESSION['Active_Navigate'] == 'Setup' ? 'active' : '' ?>" aria-current="page" href="setup.php"><i class="fas fa-cog"></i> Setup</a>
-          </li>
+            <li class="nav-item">
+              <a class="nav-link <?= $_SESSION['Active_Navigate'] == 'Setup' ? 'active' : '' ?>" aria-current="page" href="setup.php"><i class="fas fa-cog"></i> Mapping</a>
+            </li>
 
-          <!-- <li class="nav-item dropdown">
+            <!-- <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle 
                   <?= $_SESSION['Active_Navigate'] == 'Barangay Setup'
                     ? ($_SESSION['Active_Navigate'] == 'Categories Setup'
@@ -81,44 +140,44 @@
             </ul>
           </li> -->
 
-          <li class="nav-item">
-            <a class="nav-link <?= $_SESSION['Active_Navigate'] == 'Resident Messaging' ? 'active' : '' ?>" aria-current="page" href="resident-messaging.php"><i class="fas fa-envelope"></i> Resident Messaging</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link <?= $_SESSION['Active_Navigate'] == 'Report' ? 'active' : '' ?>" aria-current="page" href="age-category-report.php"><i class="fas fa-chart-bar"></i> Report</a>
-          </li>
-
-          <!-- <li class="nav-item">
+            <li class="nav-item">
+              <a class="nav-link <?= $_SESSION['Active_Navigate'] == 'Resident Messaging' ? 'active' : '' ?>" aria-current="page" href="resident-messaging.php"><i class="fas fa-envelope"></i> Resident Messaging</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <?= $_SESSION['Active_Navigate'] == 'Report' ? 'active' : '' ?>" aria-current="page" href="age-category-report.php"><i class="fas fa-chart-bar"></i> Report</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+            <!-- <li class="nav-item">
             <a class="nav-link" href="#"><i class="fas fa-chart-bar"></i> Reports</a>
           </li> -->
 
-          <div class="align-items-center d-lg-none d-block">
-            <div class="flex-shrink-0 dropdown">
-              <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end text-small shadow">
-                <li><a class="dropdown-item" href="#">Profile</a></li>
-                <li>
-                  <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="logout.php">Sign out</a></li>
-              </ul>
-            </div>
-          </div>
-        </ul>
-      </div>
-      <div class=" align-items-center d-lg-block d-none">
-        <div class="flex-shrink-0 dropdown">
-          <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="../assets/img/default-profile.png" alt="mdo" width="32" height="32" class="rounded-circle">
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end text-small shadow">
-            <li><a class="dropdown-item" href="logout.php">Sign out</a></li>
+            <!-- <div class="align-items-center d-lg-none d-block">
+              <div class="flex-shrink-0 dropdown">
+                <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+                  <li><a class="dropdown-item" href="#">Profile</a></li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  <li><a class="dropdown-item" href="logout.php">Sign out</a></li>
+                </ul>
+              </div>
+            </div> -->
           </ul>
         </div>
+        <!-- <div class=" align-items-center d-lg-block d-none">
+          <div class="flex-shrink-0 dropdown">
+            <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="../assets/img/default-profile.png" alt="mdo" width="32" height="32" class="rounded-circle">
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+              <li><a class="dropdown-item" href="logout.php">Sign out</a></li>
+            </ul>
+          </div>
+        </div> -->
       </div>
-    </div>
-</nav>
-
-<body class="bg-light mb-5">
+  </nav>
