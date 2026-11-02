@@ -291,6 +291,27 @@ class controller extends db
             if ($checking_query->fetch()) {
                 return ['message' => 'Hosuehold Number is already used.'];
             }
+            /// check if family member is already added in other household
+            $checking_member_query = $pdo->prepare(
+                "SELECT 1 FROM household_member_list WHERE person_unique_id = :person_unique_id LIMIT 1"
+            );
+            foreach ($HouseHoldMember as $HouseHoldMemberList) {
+                $checking_member_query->bindParam(":person_unique_id", $HouseHoldMemberList['person_unique_id']);
+                $checking_member_query->execute();
+                if ($checking_member_query->fetch()) {
+                    /// show who is the family member name that is already added in other household
+                    $fetch_member_name = $pdo->prepare(
+                        "SELECT CONCAT(first_name, ' ', middle_name, ' ', last_name) AS full_name FROM individual_records_list WHERE person_unique_id = :person_unique_id LIMIT 1"
+                    );
+                    $fetch_member_name->bindParam(":person_unique_id", $HouseHoldMemberList['person_unique_id']);
+                    $fetch_member_name->execute();
+                    $member_name = $fetch_member_name->fetchColumn();
+                    return ['message' => "Family member '$member_name' is already added in other household."];
+                }
+            }
+
+
+
             $pdo->beginTransaction();
             $houshold_id = uniqid();
             $query = $pdo->prepare(
@@ -481,7 +502,7 @@ class controller extends db
             // }
 
             // Build placeholders for IN clause
-            $placeholders = implode(',', array_fill(0, count($CategoriesLevelId), '?'));
+            // $placeholders = implode(',', array_fill(0, count($Categories), '?'));
             $query = "SELECT DISTINCT
                         nt.TemplateMessage,
                         CONCAT(
@@ -504,13 +525,14 @@ class controller extends db
                       ON hl.houshold_id = hml.household_number
                   INNER JOIN individual_records_list irl 
                       ON hml.person_unique_id = irl.person_unique_id
-                  WHERE nt.CategoryID = ? 
-                    AND nt.CategoryLevel IN ($placeholders)
+                  WHERE nt.CategoryID = :categoryID AND irl.contact_no <> ''
                   ORDER BY nt.categoryID ASC";
 
-            $params = array_merge([$Categories], $CategoriesLevelId);
+
+            // $params = array_merge([$Categories], $CategoriesLevelId);
             $stmt1 = $pdo->prepare($query);
-            $stmt1->execute($params);
+            $stmt1->bindParam(":categoryID", $Categories);
+            $stmt1->execute();
 
             foreach ($stmt1 as $varlist) {
                 try {
@@ -915,6 +937,9 @@ class controller extends db
             } else if ($filterType == '2') {
                 $whereClause .= " AND CONCAT(ir.first_name,' ',ir.middle_name,' ',ir.last_name) LIKE :keyword";
                 $params[":keyword"] = "%{$keyword}%";
+            } else if ($filterType == '3') {
+                $whereClause .= " AND hl.purok_sitio_id = :keyword";
+                $params[":keyword"] = $keyword;
             }
         }
         $sql = "SELECT DISTINCT
@@ -1258,7 +1283,7 @@ class controller extends db
                         ir.last_name,
                         TIMESTAMPDIFF(YEAR, ir.birdthdate, CURDATE()) AS age_years,
                         TRIM(CONCAT_WS(' ', ir.first_name, ir.middle_name, ir.last_name, NULLIF(ir.suffix, ''))) AS full_name,
-                        hl.houshold_id AS household_number,
+                        hl.household_number AS household_number,
                         hl.purok_sitio_id,
                         COALESCE(ps.purok_sitio_name, 'Unassigned Purok') AS purok_sitio_name
                     FROM individual_records_list ir

@@ -202,3 +202,10 @@ function getContrastColor(hex) {
     var yiq = ((r*299)+(g*587)+(b*114))/1000;
     return (yiq >= 128) ? '#000' : '#fff'; // black if light bg, white if dark bg
 }
+
+function HasSameValueArr(arr) {
+    if (arr.length === 0) return true; // empty array, consider same
+    return arr.every(val => val === arr[0]);
+}
+
+

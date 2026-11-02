@@ -36,10 +36,33 @@ $(document).on("submit","#frmFilterList",function(e){
   initializePropertyTable();
 })
 
+
+
+$(document).on("change","#frmFilterList #drpFilterType",function(){
+    var value = $(this).val();
+    if(value == 3) /// if filter type is Purok
+    { 
+        $("#frmFilterList #drpPurok").removeClass("d-none");
+        $("#frmFilterList #keyword").addClass("d-none");
+        return;
+    }
+    $("#frmFilterList #drpPurok").addClass("d-none");
+    $("#frmFilterList #keyword").removeClass("d-none");
+
+})
+
 const initializePropertyTable = () => {
     var categoryId = $("#drpCategories").val();
     var filterType = $("#drpFilterType").val();
-    var keyword = $("#keyword").val();
+var keyword  ="";
+    if(filterType == 3) /// if filter type is Purok
+    { 
+         keyword = $("#drpPurok").val();
+    }else {
+         keyword = $("#keyword").val();
+    }
+
+
 
     $("#householdTable").DataTable({
         destroy: true,

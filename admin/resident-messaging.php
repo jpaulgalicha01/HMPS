@@ -127,16 +127,16 @@ include_once './includes/navbar.php';
                                 </select>
                             </div>
                             <div class="col-12 card mt-2 d-none" id="contentCategoriesLevel">
-                                <div class="row p-2" style="max-height: 150px; overflow-x:auto" id="listCategoriesLevel">
+                                <!-- <div class="row p-2" style="max-height: 150px; overflow-x:auto" id="listCategoriesLevel">
                                 </div>
+                            </div> -->
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> send</button>
-                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> send</button>
+                    </div>
             </form>
 
         </div>
