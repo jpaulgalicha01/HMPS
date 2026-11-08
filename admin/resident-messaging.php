@@ -50,7 +50,7 @@ include_once './includes/navbar.php';
                                             <div class="mb-3">
                                                 <label for="" class="form-label">Category Level <span class="text-danger">*</span></span></label>
                                                 <select class="form-select" id="CategoryLevel" name="CategoryLevel">
-                                                    <option disabled selected> Select Category Level</option>
+                                                    <!-- <option disabled selected> Select Category Level</option> -->
                                                 </select>
                                             </div>
                                             <div class="mb-3">

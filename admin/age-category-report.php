@@ -20,6 +20,12 @@ include_once './includes/navbar.php';
                 </div>
                 <div class="d-flex flex-wrap align-items-end gap-2">
                     <div>
+                        <label for="ageReportPurok" class="form-label mb-1">Purok/Sitio</label>
+                        <select class="form-select" id="ageReportPurok">
+                            <option value="all">All</option>
+                        </select>
+                    </div>
+                    <div>
                         <label for="ageReportCategory" class="form-label mb-1">Age category</label>
                         <select class="form-select" id="ageReportCategory">
                             <option value="all">All categories</option>

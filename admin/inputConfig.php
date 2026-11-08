@@ -202,6 +202,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $CategoriesLevelId = $_POST["CategoriesLevelId"] ?? [];
         $insert = new insert();
         $insert->sendingNotification($Categories, $CategoriesLevelId);
+    } else if (isset($_POST["deleteTemplate"])) {
+        $templateID = secured($_POST["templateID"]);
+        $delete = new delete();
+        $delete->deleteTemplate($templateID);
     } else {
         return http_response_code(404);
     }

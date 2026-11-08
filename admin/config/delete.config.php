@@ -149,4 +149,27 @@ class delete extends controller
         echo json_encode($response);
         return false;
     }
+    public function deleteTemplate($TemplateID){
+        $stmt = $this->delete_template($TemplateID);
+        if ($stmt) {
+            if ($stmt == 1) {
+                $response = [
+                    'status' => 200,
+                    'message' => 'Template Deleted Successfully.',
+                ];
+            } else {
+                $response = [
+                    'status' => 409,
+                    'message' => $stmt,
+                ];
+            }
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'There was an error while deleting template.',
+            ];
+        }
+        echo json_encode($response);
+        return false;
+    }
 }

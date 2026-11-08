@@ -73,7 +73,7 @@ const initializeIndividualRecTable = () => {
                           <button class="form-control btn btn-success btn-sm" onclick="updateTemplate('${row.template_id}')"><i class="fas fa-edit"></i> Edit</button>
                         </li>
                         <li class="dropdown-item">
-                          <button class="form-control btn btn-danger btn-sm" onclick="deleteIndividualRecords('${row.template_id}','${row.reference_number}')"><i class="fas fa-trash"></i> Delete</button>
+                          <button class="form-control btn btn-danger btn-sm" onclick="deleteIndividualRecords('${row.template_id}','${row.category_name}','${row.category_level_name}')"><i class="fas fa-trash"></i> Delete</button>
                         </li>
                       </ul>
                     </div>
@@ -85,6 +85,39 @@ const initializeIndividualRecTable = () => {
 };
 
 
+function deleteIndividualRecords (id, categoryName, categoryLevelName){
+
+    var formData = new FormData();
+    formData.append("deleteTemplate",true);
+    formData.append("templateID",id);
+
+    ClsConfirmAlert({
+        icon: "error",
+        title: `Are you sure you want to delete the Template "${categoryName} (${categoryLevelName})"?`,
+        confirmText: "Delete",
+        cancelText: "Cancel",
+        onConfirm: function() {
+            fncExecute('inputConfig.php', formData, function(response, textStatus, jqXHR) {
+                const res = JSON.parse(response);
+                if (res.status === 200) {
+                    ClsAlert({
+                        icon: "success",
+                        title: res.message
+                    });
+                    // ✅ safer: reload instead of reinit
+                    $("#listTemplateTable").DataTable().ajax.reload();
+                    $("#submitTemplateAlert")[0].reset();
+
+                } else {
+                    ClsAlert({
+                        icon: "error",
+                        title: res.message
+                    });
+                }
+            }, 'POST');
+        }
+    });
+}
 
 function updateTemplate(templateID){
     var formData = new FormData();
@@ -113,7 +146,7 @@ $("#categoryID").change(function(){
         const res = JSON.parse(response);
         if(res.status == 200){
             const drpDown = document.getElementById("CategoryLevel");
-            drpDown.innerHTML = '<option disabled selected>Select Category Level</option>';
+            // drpDown.innerHTML = '<option disabled selected>Select Category Level</option>';
             res.data.forEach(level => {
                 const option = document.createElement("option");
                 option.value = level.category_level_id;

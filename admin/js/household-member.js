@@ -346,14 +346,24 @@ function fncAddHouseHoldMembersBtn(args = {}) {
                     term: params.term || ''
                 };
             },
-            processResults: function (data) {
-                // Handle Array or {status:200, data:[]} format
-                const rows = (data.data) ? data.data : (Array.isArray(data) ? data : []);
-                return {    
-                    results: rows.map(r => ({
-                        id: r.person_unique_id,
-                        text: r.full_name
-                    }))
+            processResults: function (response) {
+                const rows = response.data ? response.data : (Array.isArray(response) ? response : []);
+
+                const selectedElsewhere = new Set(
+                    $('select[name="person_unique_id[]"]')
+                        .not($sel)
+                        .map(function () { return this.value; })
+                        .get()
+                        .filter(Boolean)
+                );
+
+                return {
+                    results: rows
+                        .filter(person => !selectedElsewhere.has(String(person.person_unique_id))) // Filter first if the person is already selected in another row
+                        .map(person => ({
+                            id: person.person_unique_id,
+                            text: person.full_name
+                        }))
                 };
             },
         }

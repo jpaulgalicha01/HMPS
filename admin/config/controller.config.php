@@ -1275,7 +1275,8 @@ class controller extends db
                     residents.purok_sitio_name,
                     residents.age_years,
                     residents.full_name,
-                    residents.household_number
+                    residents.household_number,
+                    residents.person_unique_id
                 FROM (
                     SELECT
                         ir.person_unique_id,
@@ -1463,6 +1464,29 @@ class controller extends db
                 return 1;
             } else {
                 return "Failed to Household.";
+            }
+        } catch (PDOException $error) {
+            return $error->getMessage();
+        }
+    }
+
+    protected function delete_template($TemplateID)
+    {
+        $checking_query = $this->PlsConnect()->prepare("SELECT 1 FROM notification_template WHERE template_id = :template_id LIMIT 1");
+        $checking_query->bindParam(":template_id", $TemplateID);
+        if ($checking_query->execute()) {
+            if (!$checking_query->fetch()) {
+                return "Template not found.";
+            }
+        }
+
+        try {
+            $query = $this->PlsConnect()->prepare("DELETE FROM notification_template WHERE template_id = :template_id");
+            $query->bindParam(":template_id", $TemplateID);
+            if ($query->execute()) {
+                return 1;
+            } else {
+                return "Failed to delete template.";
             }
         } catch (PDOException $error) {
             return $error->getMessage();
