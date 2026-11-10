@@ -232,7 +232,7 @@ function printPersonalInformation(printWindow, person) {
                 .field { min-width: 0; }
                 .field.wide { grid-column: 1 / -1; }
                 .label { margin-bottom: 5px; color: #495057; font-size: 12px; }
-                .value { min-height: 34px; padding: 9px 10px; border: 1px solid #ced4da; border-radius: 4px; overflow-wrap: anywhere; }
+               
                 @media print { body { padding: 0; } }
                 @media (max-width: 600px) { .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
             </style>
