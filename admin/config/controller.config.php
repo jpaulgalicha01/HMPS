@@ -759,6 +759,9 @@ class controller extends db
     protected function get_all_personal_records($term)
     {
         try {
+
+            // modified this query not exist in household_member_list instead of individual_records_list to avoid duplicate records
+
             $query = $this->PlsConnect()->prepare("SELECT
                     person_unique_id,
                     CONCAT('REC-', YEAR(date_encoded), '-', LPAD(preson_id, 6, '0')) AS reference_number,
@@ -783,6 +786,11 @@ class controller extends db
                         END
                     )
                 ) LIKE UPPER(:term)
+                AND not exists (
+                    SELECT 1 
+                    FROM household_member_list 
+                    WHERE household_member_list.person_unique_id = individual_records_list.person_unique_id
+                )
             ");
             // Add wildcards here in PHP
             $likeTerm = "%{$term}%";

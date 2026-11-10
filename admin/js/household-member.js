@@ -465,22 +465,24 @@ $(document).on("submit","#frmHouseHoldList",function(e){
 
     const HouseHoldMember = [];
     const familyOrder = [];
+
    document.querySelectorAll('#HousholdMemberList tr').forEach(tr => {
         const person_unique_id = tr.querySelector('td:nth-child(1) select').value;
         const family_order = tr.querySelector('td:nth-child(2) input').value;
 
         HouseHoldMember.push({ person_unique_id, family_order });
-        familyOrder.push(family_order);
+        familyOrder.push(parseInt(family_order, 10)); // Store as integer for comparison
     });
+    // checking if family orde
 
-    // Check for duplicate family orders 
+    console.log(familyOrder)
+
     if (HasSameValueArr(familyOrder) && familyOrder.length > 1) {
-        ClsAlert({
+       ClsAlert({
             icon: 'warning',
             title: 'Same family order detected. Please ensure each household member has a unique family order.'
         });
         return;
-
     }
 
     if (HasSameValueArr(HouseHoldMember.map(m => m.person_unique_id)) && HouseHoldMember.length > 1) {

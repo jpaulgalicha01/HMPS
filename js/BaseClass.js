@@ -204,8 +204,7 @@ function getContrastColor(hex) {
 }
 
 function HasSameValueArr(arr) {
-    if (arr.length === 0) return true; // empty array, consider same
-    return arr.every(val => val === arr[0]);
+    return new Set(arr).size !== arr.length;
 }
 
 function formatBirthDate(value) {
